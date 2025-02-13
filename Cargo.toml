@@ -1,6 +1,8 @@
 [package]
 name = "gnulinwiz"
-version = "0.1.0"
+version = "0.1.0-stable"
 edition = "2021"
 
 [dependencies]
+libc = "0.2"
+colored = "3"
