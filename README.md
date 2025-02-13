@@ -17,11 +17,11 @@ To use the program download the latest version here:
 
 Unpack the archive:
 ```
-tar -xzf gnu_linux_config_wizard_0_1_0.tar.gz
+tar -xzf gnulinwiz_0_1_0.tar.gz
 ```
 Then enter the "program" directory:
 ```
-cd gnu_linux_config_wizard_0_1_0/program
+cd gnulinwiz_0_1_0/program
 ```
 And finally run the program:
 ```
