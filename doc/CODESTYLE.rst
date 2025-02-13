@@ -3,179 +3,141 @@
 Coding Style
 ============
 
-This document outlines the preferred coding style for the Linux kernel. Following a consistent style improves both readability and maintainability of the code.
+This document outlines the preferred coding style for Rust projects. Following a consistent style improves both readability and maintainability of the code.
 
 1. Indentation
 --------------
-  
-- Tabs are considered 8 characters and so are indentations. This increases readability and warns of overly nested functions.
+
+- Use 4 spaces for indentation. Avoid using tabs to ensure consistency across different editors.
 
 .. code-block:: rust
 
-  do_something() {
-    do_anything();
-  }
+    fn do_something() {
+        do_anything();
+    }
 
-- Avoid putting multiple statements on a single line unless for hiding something obscure.
+- Avoid putting multiple statements on a single line unless it enhances clarity.
 
-.. code-block:: c
+.. code-block:: rust
 
-	if (condition) do_once;
-	        do_something_always;
-  
-- Avoid using commas to avoid braces.
+    if condition { do_once(); }
+    do_something_always();
 
-.. code-block:: c
+- Always use braces for control flow statements with multiple lines.
 
-	if (condition)
-	        first(), second();
+.. code-block:: rust
 
-- Always use braces for multiple statements.
-   
-.. code-block:: c
-
-	if (condition) {
-	        first();
-	        second();
-	}
+    if condition {
+        first();
+        second();
+    }
 
 - Don't put multiple assignments on a single line.
-- Avoid tricky expressions.
+- Avoid complex expressions that reduce readability.
 
 2. Breaking Long Lines and Strings
 ----------------------------------
 
 - The preferred line length limit is 80 characters.
-- Long statements should be broken into sensible chunks, \
-  unless exceeding 80 characters significantly improves readability and doesn't hide information.
+- Long statements should be broken into sensible chunks, unless exceeding 80 characters significantly improves readability.
 - The same rules apply to function headers with long argument lists.
-- However, don't break user-visible strings like printf messages for grep-ability.
+- Avoid breaking user-visible strings for better grep-ability.
 
 3. Placing Braces and Spaces
 ----------------------------
 
-- Put the opening brace on the last line of a control structure (if, switch, for, while, do) \
-  and the closing brace on the first line of the following block.
+- Place the opening brace on the same line as the control structure (if, match, for, while) and the closing brace on its own line.
 
-.. code-block:: c
-  
-  if (condition) {
-          do_something();
-          do_something_else();
-  }
+.. code-block:: rust
+
+    if condition {
+        do_something();
+        do_something_else();
+    }
 
 This applies to all non-function statement blocks.
 
-- Functions have the opening brace at the beginning of the next line.
+- Functions should have the opening brace on the same line.
 
-.. code-block:: c
+.. code-block:: rust
 
-	int function(int x)
-	{
-	        do_something(x);
-	}
+    fn function(x: i32) {
+        do_something(x);
+    }
 
-- The closing brace is empty on a line of its own, except when followed \
-  by continuation of the same statement (like a "while" in a do-statement).
+- The closing brace should be on its own line, except when followed by a continuation of the same statement.
 
-.. code-block:: c
+.. code-block:: rust
 
-	do {
-	        do_something();
-	} while (condition);
+    loop {
+        do_something();
+    }
 
 and
 
-.. code-block:: c
+.. code-block:: rust
 
-	if (condition) {
-		..
-	} else if (condition) {
-		...
-	} else {
-		....
-	}
+    if condition {
+        // ...
+    } else if condition {
+        // ...
+    } else {
+        // ...
+    }
 
 This style minimizes empty lines while maximizing space for comments.
-
-- Don't unnecessarily use braces for single statements.
-
-.. code-block:: c
-
-	if (condition)
-	        do_something();
-
-and
-
-.. code-block:: c
-
-	if (condition)
-	        do_something();
-	else
-	        do_anything();
-
-- Use braces when a loop contains more than one simple statement.
-  
-.. code-block:: c
-
-	while (condition) {
-	        if (condition_2)
-	                do_something();
-	}
 
 3.1 Spaces
 **********
 
-- Use a space after keywords like if, switch, case, for, do, while, *but not with* sizeof, typeof, alignof, or __attribute__.
-  
-.. code-block:: c
-  
-  if (condition)
-          do_something();
+- Use a space after keywords like if, match, for, while, but not with sizeof or similar.
+
+.. code-block:: rust
+
+    if condition {
+        do_something();
+    }
 
 - No spaces around (inside) parenthesized expressions.
 
-.. code-block:: c
+.. code-block:: rust
 
-  /* don't do like that */
-  variable = sizeof( struct something );
+    let size = std::mem::size_of::<Something>();
 
-- When declaring pointer data or a function that returns a pointer type, the preferred placement of * is adjacent to the data name/function name, not to the type name.
+- When declaring pointer types or functions returning pointers, place the `*` adjacent to the variable name, not the type.
 
-.. code-block:: c
+.. code-block:: rust
 
+    let something: *const Something;
+    fn do_something(ptr: *const i32) -> *const i32;
 
-	char *something;
-	unsigned int do_something(char *ptr, char **retptr);
-	char *do_anything(int *i);
-
-- Use one space around most binary and ternary operators::
+- Use one space around most binary and ternary operators:
 
     =  +  -  <  >  *  /  %  |  &  ^  <=  >=  ==  !=  ?  :
-  
-- But no space after unary operators, before postfix increment/decrement operators, or around . and -> structure member operators::
+
+- No space after unary operators, before postfix increment/decrement operators, or around . and -> structure member operators:
 
     &  *  +  -  ~  !  ++  --  .  ->
-    
+
 - Don't leave trailing whitespace at the end of lines.
 
 4. Naming
 ---------
 
 - Local variable names should be short and descriptive, reflecting their purpose.
-- Avoid generic names like tmp or i.
-- Function names should be descriptive and indicate what the function does.
+- Avoid generic names like `tmp` or `i`.
+- Function names should be descriptive and indicate what the function does, using snake_case.
 
-5. Typedefs
------------
+5. Type Aliases
+---------------
 
-- Avoid using typedef for structures and pointers. Their type should be clear directly.
-- typedef is useful for
-    - Opaque objects accessed through accessor functions (e.g., pte_t).
+- Avoid using type aliases for structures and pointers. Their type should be clear directly.
+- Type aliases are useful for:
+    - Opaque types accessed through accessor functions.
     - Clear integer types to avoid confusion (e.g., u8, u16).
-    - Creating new types in sparse.
-  
-- Generally, don't use typedef for pointers or directly accessible struct types.
+    - Creating new types in specific contexts.
+
+- Generally, avoid type aliases for pointers or directly accessible struct types.
 
 6. Functions
 ------------
@@ -185,42 +147,44 @@ and
 - Use helper functions with descriptive names for large functions.
 - Aim for 5-10 local variables per function.
 - Separate functions with one blank line.
-- If exported, add the EXPORT macro after the closing brace in the source file.
+- If exported, use the `pub` keyword before the function definition.
 
-.. code-block:: c
+.. code-block:: rust
 
-	int doing_something(void)
-	{
-	        return task_state == DOING SOMETHING;
-	}
-
-6.1 Function Prototypes
-***********************
-
-- Include parameter names with their data types in function prototypes for clarity.
-- Don't use the extern keyword with function declarations.
-- Maintain a specific order for prototype elements: storage class, storage class attributes, return type, return type attributes, function name, function parameters, function parameter attributes, function behavior attributes.
+    pub fn doing_something() -> bool {
+        task_state == TaskState::DoingSomething
+    }
 
 7. Commenting
 -------------
-
-- C++ style comments are unacceptable.
-
-.. code-block:: c
-
-  int i; //this comment is unaccaptable
 
 - Comment on what your code does, not how it works.
 - Over-commenting is discouraged. Write clean code that explains itself.
 - Place comments at the head of functions to explain their purpose and functionality.
 - For long comments, use the preferred styles outlined.
 
-.. code-block:: c
+.. code-block:: rust
 
-	/*
-	 * This is the preferred style
-	 *
-	 * something goes here :)
-	 */
+    // This is the preferred style for single-line comments
+
+.. code-block:: rust
+
+    /*
+     * This is the preferred style for multi-line comments
+     *
+     * something goes here :)
+     */
 
 - Comment data declarations for easier understanding.
+
+.. code-block:: rust
+
+    /// Represents a user in the system.
+    struct User {
+        id: u32,
+        name: String,
+    }
+
+- Use doc comments (`///`) for public items to generate documentation automatically.
+
+By adhering to these guidelines, we can ensure that our Rust code remains clean, readable, and maintainable, fostering a collaborative and efficient development environment.
