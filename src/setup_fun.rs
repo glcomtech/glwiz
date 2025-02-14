@@ -8,22 +8,13 @@ pub fn validate_task_status(status: i8) {
         print_setup_status_failed();
         exit(status as i32);
     }
-} // validate_task_status
+} // validate_task_status()
 
 /// installs software
-pub fn software_setup() -> i8 {
+pub fn software_setup(packages: &[String]) -> i8 {
     let output = Command::new("pacman")
-        .args([
-            "-Sy",
-            "firefox",
-            "clang",
-            "zsh",
-            "git",
-            "zed",
-            "gimp",
-            "mpv",
-            "spectacle",
-        ])
+        .arg("-Sy")
+        .args(packages.iter().map(|s| s.as_str()))
         .output()
         .expect("Failed to install necessary software.");
 
@@ -36,39 +27,39 @@ pub fn software_setup() -> i8 {
         eprintln!("{}{}", "Error:\n".red(), stderr.red());
         return 1;
     }
-} // software_setup
+} // software_setup()
 
 /// sets up username which is used in installation and configuration paths
 fn username_setup() {
     todo!();
-} // username_setup
+} // username_setup()
 
 /// sets up iptables
 fn iptables_setup() {
     todo!();
-} // iptables_setup
+} // iptables_setup()
 
 /// sets up zsh
 fn zsh_setup() {
     todo!();
-} // zsh_setup
+} // zsh_setup()
 
 ///sets up vim
 fn vim_setup() {
     todo!();
-} // vim_setup
+} // vim_setup()
 
 /// sets up configuration files for root user
 fn root_setup() {
     todo!();
-} // root_setup
+} // root_setup()
 
 /// sets up zram swap configuration
 fn zram_swap_setup() {
     todo!();
-} // zram_swap_setup
+} // zram_swap_setup()
 
 /// sets up zed code editor
 fn zed_editor_setup() {
     todo!();
-} // zed_editor_setup
+} // zed_editor_setup()
