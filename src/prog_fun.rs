@@ -50,10 +50,13 @@ pub fn print_setup_status_failed() {
 
 /// checks wether user wants to use default installation list or to enter a custom one
 pub fn check_sw_install_type() -> bool {
-    println!("{}", "Enter 0 for the default list of software or 1 to enter a custom list:".yellow());
-    
+    println!(
+        "{}",
+        "Enter 0 for the default list of software or 1 to enter a custom list:".yellow()
+    );
+
     let input = read_input().trim().to_string();
-    
+
     match input.parse::<i8>() {
         Ok(value) if value == 1 => {
             println!("{}", "You chose to enter a custom list.".green());
