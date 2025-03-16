@@ -1,10 +1,12 @@
-pub mod functionality;
+mod functionality;
 
-use functionality::prog_fun::{
-    check_sw_install_type, default_package, print_license_info, print_setup_status_success,
-    set_sw_list, validate_root_priviliges,
+use crate::functionality::{
+    prog_fun::{
+        check_sw_install_type, default_package, print_license_info, print_setup_status_success,
+        set_sw_list, validate_root_priviliges,
+    },
+    setup_fun::{software_setup, validate_task_status},
 };
-use functionality::setup_fun::{software_setup, validate_task_status};
 
 fn main() {
     print_license_info();
