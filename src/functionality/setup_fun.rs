@@ -1,4 +1,4 @@
-use crate::prog_fun::print_setup_status_failed;
+use crate::functionality::prog_fun::print_setup_status_failed;
 use colored::Colorize;
 use std::process::{exit, Command};
 
