@@ -1,6 +1,4 @@
-mod functionality;
-
-use crate::functionality::{
+use gnulinwiz::functionality::{
     prog_fun::{
         check_sw_install_type, default_package, print_license_info, print_setup_status_success,
         set_sw_list, validate_root_priviliges,
