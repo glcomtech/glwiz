@@ -3,7 +3,7 @@ use gnulinwiz::functionality::{
         check_sw_install_type, default_package, print_license_info, print_setup_status_success,
         set_sw_list, validate_root_priviliges,
     },
-    setup_fun::{software_setup, validate_task_status},
+    setup_fun::{software_setup, validate_task_status, iptables_setup},
 };
 
 fn main() {
@@ -15,6 +15,8 @@ fn main() {
     } else {
         software_setup(&default_package())
     });
+    
+    validate_task_status(iptables_setup());
 
     print_setup_status_success();
 }
