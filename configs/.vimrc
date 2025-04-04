@@ -1,27 +1,42 @@
-set mouse=a
+" do not check for compatability with vi
+set nocompatible
+
+" colors
+set term=xterm-256color
+set termguicolors
+
+
+" show special characters
+" set list " show $ symbol in the end of the line
+set linebreak
+set colorcolumn=120
+set textwidth=120
+
+" syntax highlight and indent
+filetype indent on
 syntax on
-set number
+set tabstop=4
+set shiftwidth=4
+set softtabstop=4
+set wrap
+set expandtab
+set smarttab
+set autoindent
 set cursorline
-:highlight Cursorline cterm=bold ctermbg=black
+set showmatch
+set modeline
+set number
+set relativenumber
+set mouse=a
+set backspace=start,eol,indent
+
+" search for something in code
 set hlsearch
 set ignorecase
 set smartcase
-set tabstop=4
-set softtabstop=4
-set shiftwidth=4
-set expandtab
-set autoindent
-set showmatch
-set scrolloff=5
 set laststatus=2
-set textwidth=79
-set wrap
 
-if !has('gui_running')
-	set t_Co=256
-endif
-
-set termguicolors
+" color scheme
 colorscheme wildcharm
-set background=dark
-highlight Normal guibg=NONE ctermbg=NONE
+"highlight Cursorline cterm=bold ctermbg=black
+"highlight Normal guibg=NONE ctermbg=NONE
