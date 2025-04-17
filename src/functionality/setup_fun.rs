@@ -1,6 +1,11 @@
 use crate::functionality::prog_fun::print_setup_status_failed;
 use colored::Colorize;
-use std::{fs, io::Write, path::Path, process::{exit, Command}};
+use std::{
+    fs,
+    io::Write,
+    path::Path,
+    process::{exit, Command},
+};
 
 /// validates task status
 pub fn validate_task_status(status: i8) {
@@ -38,26 +43,27 @@ fn username_setup() {
 pub fn iptables_setup() -> i8 {
     let source_path = Path::new("../configs/iptables.rules");
     let dest_path = Path::new("/etc/iptables/iptables.rules");
-    
+
     match fs::read_to_string(source_path) {
-        Ok(rules) => {
-            match fs::File::create(dest_path) {
-                Ok(mut file) => {
-                    if file.write_all(rules.as_bytes()).is_ok() {
-                        return 0;
-                    } else {
-                        eprintln!("Error: Failed to write iptables rules to destination file.");
-                        return 1;
-                    }
-                }
-                Err(e) => {
-                    eprintln!("Error: Failed to create/open destination file: {}", e);
-                    return 2;
+        Ok(rules) => match fs::File::create(dest_path) {
+            Ok(mut file) => {
+                if file.write_all(rules.as_bytes()).is_ok() {
+                    return 0;
+                } else {
+                    eprintln!("Error: Failed to write iptables rules to destination file.");
+                    return 1;
                 }
             }
-        }
+            Err(e) => {
+                eprintln!("Error: Failed to create/open destination file: {}", e);
+                return 2;
+            }
+        },
         Err(e) => {
-            eprintln!("Error: Failed to read iptables rules from source file: {}", e);
+            eprintln!(
+                "Error: Failed to read iptables rules from source file: {}",
+                e
+            );
             return 3;
         }
     }
