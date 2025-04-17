@@ -1,11 +1,32 @@
 use crate::functionality::prog_fun::print_setup_status_failed;
 use colored::Colorize;
 use std::{
+    env::var,
     fs::{read_to_string, File},
     io::{Read, Write},
     path::Path,
     process::{exit, Command, Stdio},
 };
+
+pub fn get_env_var(env_var: &str) -> Option<String> {
+    match var(env_var) {
+        Ok(username) => Some(username),
+        Err(_) => {
+            eprintln!(
+                "{}",
+                "ERROR: Could not determine the environment variables.".red()
+            );
+            None
+        }
+    }
+}
+
+pub fn validate_env_var(env_var: &str) -> String {
+    match get_env_var(env_var) {
+        Some(env_var) => env_var,
+        None => "".to_string(),
+    }
+}
 
 /// validates task status
 pub fn validate_task_status(status: i8) {
@@ -133,15 +154,83 @@ pub fn software_setup(packages: &[String]) -> i8 {
     }
 } // software_setup()
 
-/// sets up zsh
-fn zsh_setup() {
-    todo!();
-} // zsh_setup()
+fn run_command_as(command: &str, args: &[&str], user: &str) -> i8 {
+    let su_command = "su";
+    let su_arg = format!(
+        "-c '{}'",
+        format!("zsh -c \"{}\"", format!("{} {}", command, args.join(" ")))
+    );
 
-///sets up vim
-fn vim_setup() {
-    todo!();
-} // vim_setup()
+    let output_result = Command::new(su_command).arg(user).arg(su_arg).output();
+
+    match output_result {
+        Ok(output) => {
+            if output.status.success() {
+                return 0;
+            } else {
+                eprintln!(
+                    "Command `{}` as user `{}` failed:\nStdout: {}\nStderr: {}",
+                    command,
+                    user,
+                    String::from_utf8_lossy(&output.stdout).trim(),
+                    String::from_utf8_lossy(&output.stderr).trim()
+                );
+                return 1; // Or some other non-zero error code
+            }
+        }
+        Err(e) => {
+            eprintln!(
+                "Failed to execute command `{}` as user `{}`: {}",
+                command, user, e
+            );
+            return 2; // Or a different non-zero error code to distinguish execution failure
+        }
+    }
+}
+
+pub fn install_omz(username: String) -> i8 {
+    let command = "curl";
+    let args = &[
+        "-fsSL",
+        "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh",
+    ];
+    run_command_as(command, args, username.as_str())
+}
+
+pub fn install_zsh_autosuggestions(username: String, home_dir: String) -> i8 {
+    let command = "git";
+    let zsh_custom_path = format!("{}/.oh-my-zsh/custom/plugins", home_dir);
+    let args = &[
+        "clone",
+        "https://github.com/zsh-users/zsh-autosuggestions",
+        &zsh_custom_path,
+    ];
+    run_command_as(command, args, username.as_str())
+}
+
+pub fn install_zsh_syntax_highlighting(username: String, home_dir: String) -> i8 {
+    let command = "git";
+    let zsh_custom_path = format!("{}/.oh-my-zsh/custom/plugins", home_dir);
+    let args = &[
+        "clone",
+        "https://github.com/zsh-users/zsh-syntax-highlighting.git",
+        &zsh_custom_path,
+    ];
+    run_command_as(command, args, username.as_str())
+}
+
+pub fn user_config_setup(config_path: String, home_dir: String) -> i8 {
+    let destination_path = String::from(format!("{}/", home_dir));
+
+    match std::fs::copy(config_path, &destination_path) {
+        Ok(_) => {
+            return 0;
+        }
+        Err(_) => {
+            return 1;
+        }
+    }
+}
 
 /// sets up configuration files for root user
 fn root_setup() {
