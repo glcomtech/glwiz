@@ -14,7 +14,7 @@ fn get_env_var(env_var: &str) -> Option<String> {
         Ok(username) => Some(username),
         Err(_) => {
             eprintln!(
-                "{}",
+                "{}\n",
                 "ERROR: Could not determine the environment variables.".red()
             );
             None
@@ -49,18 +49,26 @@ pub fn iptables_file_setup() -> i8 {
                 if file.write_all(rules.as_bytes()).is_ok() {
                     return 0;
                 } else {
-                    eprintln!("Error: Failed to write iptables rules to destination point.");
+                    eprintln!(
+                        "{}\n",
+                        "Error: Failed to write iptables rules to destination point.".red()
+                    );
                     return 1;
                 }
             }
             Err(e) => {
-                eprintln!("Error: Failed to create/open destination file: {}", e);
+                eprintln!(
+                    "{} {}\n",
+                    "Error: Failed to create/open destination file:".red(),
+                    e
+                );
                 return 2;
             }
         },
         Err(e) => {
             eprintln!(
-                "Error: Failed to read iptables rules from source file: {}",
+                "{} {}\n",
+                "Error: Failed to read iptables rules from source file:".red(),
                 e
             );
             return 3;
@@ -75,7 +83,7 @@ pub fn iptables_rules_setup() -> i8 {
             let mut rules = String::new();
             if let Err(err) = file.read_to_string(&mut rules) {
                 eprintln!(
-                    "{}{}",
+                    "{}{}\n",
                     "Error reading rules file:\n".red(),
                     err.to_string().red()
                 );
@@ -90,7 +98,7 @@ pub fn iptables_rules_setup() -> i8 {
                     if let Some(mut stdin) = child.stdin.take() {
                         if let Err(err) = std::io::Write::write_all(&mut stdin, rules.as_bytes()) {
                             eprintln!(
-                                "{}{}",
+                                "{}{}\n",
                                 "Error writing to stdin:\n".red(),
                                 err.to_string().red()
                             );
@@ -109,7 +117,7 @@ pub fn iptables_rules_setup() -> i8 {
                     } else {
                         let stderr = String::from_utf8_lossy(&output.stderr);
                         eprintln!(
-                            "{}{}",
+                            "{}{}\n",
                             "Error applying iptables rules:\n".red(),
                             stderr.red()
                         );
@@ -118,7 +126,7 @@ pub fn iptables_rules_setup() -> i8 {
                 }
                 Err(e) => {
                     eprintln!(
-                        "{}{}",
+                        "{}{}\n",
                         "Error spawning iptables-restore:\n".red(),
                         e.to_string().red()
                     );
@@ -128,7 +136,7 @@ pub fn iptables_rules_setup() -> i8 {
         }
         Err(e) => {
             eprintln!(
-                "{}{}",
+                "{}{}\n",
                 "Error opening rules file:\n".red(),
                 e.to_string().red()
             );
@@ -151,7 +159,7 @@ pub fn software_setup(packages: &[String]) -> i8 {
         return 0;
     } else {
         let stderr = String::from_utf8_lossy(&output.stderr);
-        eprintln!("{}{}", "Error:\n".red(), stderr.red());
+        eprintln!("{}{}\n", "Error:\n".red(), stderr.red());
         return 1;
     }
 } // software_setup()
@@ -162,14 +170,14 @@ fn run_sudo_command(command: &str, args: &[&str]) -> Result<String, String> {
         .arg(command)
         .args(args)
         .output()
-        .map_err(|e| format!("Failed to execute command `{}`: {}", command, e))?;
+        .map_err(|e| format!("{} {}: {}", "Failed to execute command:".red(), command, e))?;
 
     if output.status.success() {
         Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())
     } else {
         Err(format!(
             "Command `{}` failed:\nStdout: {}\nStderr: {}",
-            command,
+            command.red(),
             String::from_utf8_lossy(&output.stdout).trim(),
             String::from_utf8_lossy(&output.stderr).trim()
         ))
@@ -193,8 +201,8 @@ fn run_command_as(command: &str, args: &[&str], user: &str) -> i8 {
             } else {
                 eprintln!(
                     "Command `{}` as user `{}` failed:\nStdout: {}\nStderr: {}",
-                    command,
-                    user,
+                    command.red(),
+                    user.red(),
                     String::from_utf8_lossy(&output.stdout).trim(),
                     String::from_utf8_lossy(&output.stderr).trim()
                 );
@@ -204,7 +212,9 @@ fn run_command_as(command: &str, args: &[&str], user: &str) -> i8 {
         Err(e) => {
             eprintln!(
                 "Failed to execute command `{}` as user `{}`: {}",
-                command, user, e
+                command.red(),
+                user.red(),
+                e
             );
             return 2; // Or a different non-zero error code to distinguish execution failure
         }
@@ -269,27 +279,85 @@ pub fn setup_root_config(home_dir: String) -> i8 {
     let vimrc_dest = String::from("/root/.vimrc");
 
     // Create symbolic link for .oh-my-zsh
-    match run_sudo_command("ln", &["-s", oh_my_zsh_src.as_str(), oh_my_zsh_dest.as_str()]) {
-        Ok(_) => println!("{}", "Created symbolic link for /root/.oh-my-zsh\n".green()),
-        Err(e) => eprintln!("{}{}", "Error creating symbolic link for /root/.oh-my-zsh:\n".red(), e.red()),
+    match run_sudo_command(
+        "ln",
+        &["-s", oh_my_zsh_src.as_str(), oh_my_zsh_dest.as_str()],
+    ) {
+        Ok(_) => println!(
+            "{}\n",
+            "Created symbolic link for /root/.oh-my-zsh\n".green()
+        ),
+        Err(e) => {
+            eprintln!(
+                "{}{}\n",
+                "Error creating symbolic link for /root/.oh-my-zsh:\n".red(),
+                e.red()
+            );
+            return 1;
+        }
     }
 
     // Create symbolic link for .zshrc
     match run_sudo_command("ln", &["-s", zshrc_src.as_str(), zshrc_dest.as_str()]) {
-        Ok(_) => println!("{}", "Created symbolic link for /root/.zshrc".green()),
-        Err(e) => eprintln!("{}{}", "Error creating symbolic link for /root/.zshrc:\n".red(), e.red()),
+        Ok(_) => println!("{}\n", "Created symbolic link for /root/.zshrc\n".green()),
+        Err(e) => {
+            eprintln!(
+                "{}{}\n",
+                "Error creating symbolic link for /root/.zshrc:\n".red(),
+                e.red()
+            );
+            return 2;
+        }
     }
 
     // Create symbolic link for .vimrc
     match run_sudo_command("ln", &["-s", vimrc_src.as_str(), vimrc_dest.as_str()]) {
-        Ok(_) => println!("{}", "Created symbolic link for /root/.vimrc".green()),
-        Err(e) => eprintln!("{}{}", "Error creating symbolic link for /root/.vimrc:\n".red(), e.red()),
+        Ok(_) => println!("{}\n", "Created symbolic link for /root/.vimrc\n".green()),
+        Err(e) => {
+            eprintln!(
+                "{}{}\n",
+                "Error creating symbolic link for /root/.vimrc:\n".red(),
+                e.red()
+            );
+            return 3;
+        }
     }
 
-    0
+    return 0;
 } // setup_root_config
 
 /// sets up zram swap configuration
-fn zram_swap_setup() {
-    todo!();
+pub fn zram_swap_setup() -> i8 {
+    let output = Command::new("sudo")
+        .arg("cp")
+        .arg("../configs/zram-generator.conf")
+        .arg("/etc/systemd/")
+        .output();
+
+    match output {
+        Ok(output) => {
+            if output.status.success() {
+                println!(
+                    "{}\n",
+                    "ZRAM swap configuration copied successfully.".green()
+                );
+                return 0;
+            } else {
+                eprintln!(
+                    "{}{}\n",
+                    "Error copying zram-generator.conf:\n".red(),
+                    String::from_utf8_lossy(&output.stderr).red()
+                );
+                return 1;
+            }
+        }
+        Err(e) => {
+            eprintln!(
+                "{}{}\n",
+                "Error executing command:\n".red(),
+                e.to_string().red()
+            );
+            return 2;
+        }
+    }
 } // zram_swap_setup()

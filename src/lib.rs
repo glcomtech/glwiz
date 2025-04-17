@@ -4,12 +4,14 @@ use functionality::prog_fun::{
     set_sw_list, validate_root_priviliges,
 };
 use functionality::setup_fun::{
-    install_omz, install_zsh_autosuggestions, install_zsh_syntax_highlighting, iptables_file_setup, iptables_rules_setup, setup_root_config, software_setup, user_config_setup, validate_env_var, validate_task_status
+    install_omz, install_zsh_autosuggestions, install_zsh_syntax_highlighting, iptables_file_setup,
+    iptables_rules_setup, setup_root_config, software_setup, user_config_setup, validate_env_var,
+    validate_task_status, zram_swap_setup,
 };
 use functionality::user_cfg::UserCfg;
 
 /// default function for setting up necessary tools
-pub fn gnu_linux_setup() {
+pub fn gnu_linux_default_setup() {
     // prints license info
     print_license_info();
 
@@ -54,9 +56,12 @@ pub fn gnu_linux_setup() {
         "../../configs/.vimrc".to_string(),
         user_cfg.get_home(),
     ));
-    
+
     // sets up zsh, its plugins, .vimrc and .zshrc for root user
     validate_task_status(setup_root_config(user_cfg.get_home()));
+
+    // sets up zram swap
+    validate_task_status(zram_swap_setup());
 
     // prints status if no errors occured
     print_setup_status_success();
