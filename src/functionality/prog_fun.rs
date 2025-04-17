@@ -8,7 +8,6 @@ pub fn default_sw_package() -> Vec<String> {
         "clang".to_string(),
         "zsh".to_string(),
         "git".to_string(),
-        "zed".to_string(),
         "gimp".to_string(),
         "mpv".to_string(),
         "spectacle".to_string(),
@@ -26,7 +25,7 @@ under certain conditions; for details see https://www.gnu.org/licenses/gpl-3.0.h
 /// validates if user has root priviliges. Terminates the program otherwise.
 pub fn validate_root_priviliges() {
     if unsafe { libc::getuid() } != 0 {
-        eprintln!("{}", "This program requires root privileges. Please run with sudo.\nExample: sudo ./gnulinwiz".red());
+        eprintln!("{}", "This program requires root privileges. Please run with sudo using your current user.\nExample: sudo ./gnulinwiz".red());
         // exits if not root
         exit(1);
     }

@@ -15,25 +15,6 @@ pub fn validate_task_status(status: i8) {
     }
 } // validate_task_status()
 
-/// installs software
-pub fn software_setup(packages: &[String]) -> i8 {
-    let output = Command::new("pacman")
-        .arg("-Sy")
-        .args(packages.iter().map(|s| s.as_str()))
-        .output()
-        .expect("Failed to install necessary software.");
-
-    if output.status.success() {
-        let stdout = String::from_utf8_lossy(&output.stdout);
-        println!("{}", stdout);
-        return 0;
-    } else {
-        let stderr = String::from_utf8_lossy(&output.stderr);
-        eprintln!("{}{}", "Error:\n".red(), stderr.red());
-        return 1;
-    }
-} // software_setup()
-
 /// sets up iptables
 pub fn iptables_file_setup() -> i8 {
     let source_path = Path::new("../configs/iptables.rules");
@@ -131,7 +112,26 @@ pub fn iptables_rules_setup() -> i8 {
             return 1;
         }
     }
-}
+} // iptables_rules_setup()
+
+/// installs software
+pub fn software_setup(packages: &[String]) -> i8 {
+    let output = Command::new("pacman")
+        .arg("-Sy")
+        .args(packages.iter().map(|s| s.as_str()))
+        .output()
+        .expect("Failed to install necessary software.");
+
+    if output.status.success() {
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        println!("{}", stdout);
+        return 0;
+    } else {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        eprintln!("{}{}", "Error:\n".red(), stderr.red());
+        return 1;
+    }
+} // software_setup()
 
 /// sets up zsh
 fn zsh_setup() {
@@ -152,8 +152,3 @@ fn root_setup() {
 fn zram_swap_setup() {
     todo!();
 } // zram_swap_setup()
-
-/// sets up zed code editor
-fn zed_editor_setup() {
-    todo!();
-} // zed_editor_setup()
