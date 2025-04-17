@@ -8,7 +8,8 @@ use std::{
     process::{exit, Command, Stdio},
 };
 
-pub fn get_env_var(env_var: &str) -> Option<String> {
+/// gets environment variables
+fn get_env_var(env_var: &str) -> Option<String> {
     match var(env_var) {
         Ok(username) => Some(username),
         Err(_) => {
@@ -19,8 +20,9 @@ pub fn get_env_var(env_var: &str) -> Option<String> {
             None
         }
     }
-}
+} // get_env_var
 
+/// validates environment variables
 pub fn validate_env_var(env_var: &str) -> String {
     match get_env_var(env_var) {
         Some(env_var) => env_var,
@@ -154,6 +156,27 @@ pub fn software_setup(packages: &[String]) -> i8 {
     }
 } // software_setup()
 
+/// runs sudo commands
+fn run_sudo_command(command: &str, args: &[&str]) -> Result<String, String> {
+    let output = Command::new("sudo")
+        .arg(command)
+        .args(args)
+        .output()
+        .map_err(|e| format!("Failed to execute command `{}`: {}", command, e))?;
+
+    if output.status.success() {
+        Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())
+    } else {
+        Err(format!(
+            "Command `{}` failed:\nStdout: {}\nStderr: {}",
+            command,
+            String::from_utf8_lossy(&output.stdout).trim(),
+            String::from_utf8_lossy(&output.stderr).trim()
+        ))
+    }
+} // run_sudo_command
+
+/// runs commands as user
 fn run_command_as(command: &str, args: &[&str], user: &str) -> i8 {
     let su_command = "su";
     let su_arg = format!(
@@ -186,8 +209,9 @@ fn run_command_as(command: &str, args: &[&str], user: &str) -> i8 {
             return 2; // Or a different non-zero error code to distinguish execution failure
         }
     }
-}
+} // run_command_as
 
+/// installs oh my zsh
 pub fn install_omz(username: String) -> i8 {
     let command = "curl";
     let args = &[
@@ -195,8 +219,9 @@ pub fn install_omz(username: String) -> i8 {
         "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh",
     ];
     run_command_as(command, args, username.as_str())
-}
+} // install_omz
 
+/// installs zsh autosuggestions plugin
 pub fn install_zsh_autosuggestions(username: String, home_dir: String) -> i8 {
     let command = "git";
     let zsh_custom_path = format!("{}/.oh-my-zsh/custom/plugins", home_dir);
@@ -206,8 +231,9 @@ pub fn install_zsh_autosuggestions(username: String, home_dir: String) -> i8 {
         &zsh_custom_path,
     ];
     run_command_as(command, args, username.as_str())
-}
+} // install_zsh_autosuggestions
 
+/// installs zsh syntax highlighting plugin
 pub fn install_zsh_syntax_highlighting(username: String, home_dir: String) -> i8 {
     let command = "git";
     let zsh_custom_path = format!("{}/.oh-my-zsh/custom/plugins", home_dir);
@@ -217,8 +243,9 @@ pub fn install_zsh_syntax_highlighting(username: String, home_dir: String) -> i8
         &zsh_custom_path,
     ];
     run_command_as(command, args, username.as_str())
-}
+} // install_zsh_syntax_highlighting
 
+/// sets up config files in home directory
 pub fn user_config_setup(config_path: String, home_dir: String) -> i8 {
     let destination_path = String::from(format!("{}/", home_dir));
 
@@ -230,12 +257,37 @@ pub fn user_config_setup(config_path: String, home_dir: String) -> i8 {
             return 1;
         }
     }
-}
+} // user_config_setup
 
-/// sets up configuration files for root user
-fn root_setup() {
-    todo!();
-} // root_setup()
+/// sets up root config in /root directory
+pub fn setup_root_config(home_dir: String) -> i8 {
+    let oh_my_zsh_src = format!("{}{}", home_dir, "/.oh-my-zsh");
+    let oh_my_zsh_dest = String::from("/root/.oh-my-zsh");
+    let zshrc_src = format!("{}{}", home_dir, "/.zshrc");
+    let zshrc_dest = String::from("/root/.zshrc");
+    let vimrc_src = format!("{}{}", home_dir, "/.vimrc");
+    let vimrc_dest = String::from("/root/.vimrc");
+
+    // Create symbolic link for .oh-my-zsh
+    match run_sudo_command("ln", &["-s", oh_my_zsh_src.as_str(), oh_my_zsh_dest.as_str()]) {
+        Ok(_) => println!("{}", "Created symbolic link for /root/.oh-my-zsh\n".green()),
+        Err(e) => eprintln!("{}{}", "Error creating symbolic link for /root/.oh-my-zsh:\n".red(), e.red()),
+    }
+
+    // Create symbolic link for .zshrc
+    match run_sudo_command("ln", &["-s", zshrc_src.as_str(), zshrc_dest.as_str()]) {
+        Ok(_) => println!("{}", "Created symbolic link for /root/.zshrc".green()),
+        Err(e) => eprintln!("{}{}", "Error creating symbolic link for /root/.zshrc:\n".red(), e.red()),
+    }
+
+    // Create symbolic link for .vimrc
+    match run_sudo_command("ln", &["-s", vimrc_src.as_str(), vimrc_dest.as_str()]) {
+        Ok(_) => println!("{}", "Created symbolic link for /root/.vimrc".green()),
+        Err(e) => eprintln!("{}{}", "Error creating symbolic link for /root/.vimrc:\n".red(), e.red()),
+    }
+
+    0
+} // setup_root_config
 
 /// sets up zram swap configuration
 fn zram_swap_setup() {
