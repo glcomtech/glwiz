@@ -2,7 +2,7 @@ use colored::Colorize;
 use std::{io::stdin, process::exit};
 
 /// default software installation package
-pub fn default_package() -> Vec<String> {
+pub fn default_sw_package() -> Vec<String> {
     vec![
         "firefox".to_string(),
         "clang".to_string(),
