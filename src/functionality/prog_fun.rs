@@ -11,6 +11,7 @@ pub fn default_sw_package() -> Vec<String> {
         "gimp".to_string(),
         "mpv".to_string(),
         "spectacle".to_string(),
+        "curl".to_string(),
     ]
 } // default_package()
 

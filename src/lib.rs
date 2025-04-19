@@ -1,14 +1,20 @@
 pub mod functionality;
-use functionality::prog_fun::{
-    check_sw_install_type, default_sw_package, print_license_info, print_setup_status_success,
-    set_sw_list, validate_root_priviliges,
+use functionality::{
+    configs::{setup_root_config, user_config_setup},
+    env::validate_env_var,
+    iptables::{iptables_file_setup, iptables_rules_setup},
+    prog_fun::{
+        check_sw_install_type, default_sw_package, print_license_info, print_setup_status_success,
+        set_sw_list, validate_root_priviliges,
+    },
+    shell::{
+        change_def_shell, install_omz, install_zsh_autosuggestions, install_zsh_syntax_highlighting,
+    },
+    software::software_setup,
+    task::validate_task_status,
+    user_cfg::UserCfg,
+    zram::zram_swap_setup,
 };
-use functionality::setup_fun::{
-    install_omz, install_zsh_autosuggestions, install_zsh_syntax_highlighting, iptables_file_setup,
-    iptables_rules_setup, setup_root_config, software_setup, user_config_setup, validate_env_var,
-    validate_task_status, zram_swap_setup,
-};
-use functionality::user_cfg::UserCfg;
 
 /// default function for setting up necessary tools
 pub fn gnu_linux_default_setup() {
@@ -24,6 +30,8 @@ pub fn gnu_linux_default_setup() {
     validate_task_status(user_cfg.set_name(user_name));
     let home_dir = validate_env_var("HOME");
     validate_task_status(user_cfg.set_home(home_dir));
+    println!("{}", user_cfg.get_name());
+    println!("{}", user_cfg.get_home());
 
     // sets up iptables firewall and initializes rules
     validate_task_status(iptables_file_setup());
@@ -35,6 +43,9 @@ pub fn gnu_linux_default_setup() {
     } else {
         software_setup(&default_sw_package())
     });
+
+    validate_task_status(change_def_shell(user_cfg.get_name()));
+    validate_task_status(change_def_shell("root".to_string()));
 
     // sets up zsh shell
     validate_task_status(install_omz());

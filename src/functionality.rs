@@ -1,3 +1,10 @@
+pub mod commands;
+pub mod configs;
+pub mod env;
+pub mod iptables;
 pub mod prog_fun;
-pub mod setup_fun;
+pub mod shell;
+pub mod software;
+pub mod task;
 pub mod user_cfg;
+pub mod zram;
