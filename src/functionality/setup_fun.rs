@@ -2,10 +2,11 @@ use crate::functionality::prog_fun::print_setup_status_failed;
 use colored::Colorize;
 use std::{
     env::var,
-    fs::{read_to_string, File},
-    io::{Read, Write},
+    fs::read_to_string,
+    io::Write,
     path::Path,
-    process::{exit, Command, Stdio},
+    process::Stdio,
+    process::{exit, Command},
 };
 
 /// gets environment variables
@@ -15,7 +16,7 @@ fn get_env_var(env_var: &str) -> Option<String> {
         Err(_) => {
             eprintln!(
                 "{}\n",
-                "ERROR: Could not determine the environment variables.".red()
+                "error: could not determine the environment variables.".red()
             );
             None
         }
@@ -38,145 +39,19 @@ pub fn validate_task_status(status: i8) {
     }
 } // validate_task_status()
 
-/// sets up iptables
-pub fn iptables_file_setup() -> i8 {
-    let source_path = Path::new("../configs/iptables.rules");
-    let dest_path = Path::new("/etc/iptables/iptables.rules");
-
-    match read_to_string(source_path) {
-        Ok(rules) => match File::create(dest_path) {
-            Ok(mut file) => {
-                if file.write_all(rules.as_bytes()).is_ok() {
-                    return 0;
-                } else {
-                    eprintln!(
-                        "{}\n",
-                        "Error: Failed to write iptables rules to destination point.".red()
-                    );
-                    return 1;
-                }
-            }
-            Err(e) => {
-                eprintln!(
-                    "{} {}\n",
-                    "Error: Failed to create/open destination file:".red(),
-                    e
-                );
-                return 2;
-            }
-        },
-        Err(e) => {
-            eprintln!(
-                "{} {}\n",
-                "Error: Failed to read iptables rules from source file:".red(),
-                e
-            );
-            return 3;
-        }
-    }
-} // iptables_setup()
-
-/// immediately sets up iptables rules
-pub fn iptables_rules_setup() -> i8 {
-    match File::open("/etc/iptables/iptables.rules") {
-        Ok(mut file) => {
-            let mut rules = String::new();
-            if let Err(err) = file.read_to_string(&mut rules) {
-                eprintln!(
-                    "{}{}\n",
-                    "Error reading rules file:\n".red(),
-                    err.to_string().red()
-                );
-                return 1;
-            }
-
-            let mut command = Command::new("iptables-restore");
-            command.stdin(Stdio::piped());
-
-            match command.spawn() {
-                Ok(mut child) => {
-                    if let Some(mut stdin) = child.stdin.take() {
-                        if let Err(err) = std::io::Write::write_all(&mut stdin, rules.as_bytes()) {
-                            eprintln!(
-                                "{}{}\n",
-                                "Error writing to stdin:\n".red(),
-                                err.to_string().red()
-                            );
-                            return 1;
-                        }
-                    }
-
-                    let output = child
-                        .wait_with_output()
-                        .expect("Failed to wait for command.");
-
-                    if output.status.success() {
-                        let stdout = String::from_utf8_lossy(&output.stdout);
-                        println!("{}", stdout);
-                        return 0;
-                    } else {
-                        let stderr = String::from_utf8_lossy(&output.stderr);
-                        eprintln!(
-                            "{}{}\n",
-                            "Error applying iptables rules:\n".red(),
-                            stderr.red()
-                        );
-                        return 1;
-                    }
-                }
-                Err(e) => {
-                    eprintln!(
-                        "{}{}\n",
-                        "Error spawning iptables-restore:\n".red(),
-                        e.to_string().red()
-                    );
-                    return 1;
-                }
-            }
-        }
-        Err(e) => {
-            eprintln!(
-                "{}{}\n",
-                "Error opening rules file:\n".red(),
-                e.to_string().red()
-            );
-            return 1;
-        }
-    }
-} // iptables_rules_setup()
-
-/// installs software
-pub fn software_setup(packages: &[String]) -> i8 {
-    let output = Command::new("pacman")
-        .arg("-Sy")
-        .args(packages.iter().map(|s| s.as_str()))
-        .output()
-        .expect("Failed to install necessary software.");
-
-    if output.status.success() {
-        let stdout = String::from_utf8_lossy(&output.stdout);
-        println!("{}", stdout);
-        return 0;
-    } else {
-        let stderr = String::from_utf8_lossy(&output.stderr);
-        eprintln!("{}{}\n", "Error:\n".red(), stderr.red());
-        return 1;
-    }
-} // software_setup()
-
 /// runs sudo commands
-fn run_sudo_command(command: &str, args: &[&str]) -> Result<String, String> {
+fn run_sudo_command(command: &str, args: &[&str]) -> Result<(), String> {
     let output = Command::new("sudo")
         .arg(command)
         .args(args)
         .output()
-        .map_err(|e| format!("{} {}: {}", "Failed to execute command:".red(), command, e))?;
+        .map_err(|e| format!("{} {}: {}", "failed to execute command:".red(), command, e))?;
 
     if output.status.success() {
-        Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())
+        Ok(())
     } else {
         Err(format!(
-            "Command `{}` failed:\nStdout: {}\nStderr: {}",
+            "command `{}` failed:\nstdout: {}\nstderr: {}",
             command.red(),
             String::from_utf8_lossy(&output.stdout).trim(),
             String::from_utf8_lossy(&output.stderr).trim()
@@ -184,86 +59,242 @@ fn run_sudo_command(command: &str, args: &[&str]) -> Result<String, String> {
     }
 } // run_sudo_command
 
-/// runs commands as user
-fn run_command_as(command: &str, args: &[&str], user: &str) -> i8 {
-    let su_command = "su";
-    let su_arg = format!(
-        "-c '{}'",
-        format!("zsh -c \"{}\"", format!("{} {}", command, args.join(" ")))
-    );
+/// runs user commands
+fn run_user_command(command: &str, args: &[&str]) -> Result<(), String> {
+    let output = Command::new(command)
+        .args(args)
+        .output()
+        .map_err(|e| format!("{} {}: {}", "failed to execute command:".red(), command, e))?;
 
-    let output_result = Command::new(su_command).arg(user).arg(su_arg).output();
+    if output.status.success() {
+        Ok(())
+    } else {
+        Err(format!(
+            "command `{}` failed:\nstdout: {}\nstderr: {}",
+            command.red(),
+            String::from_utf8_lossy(&output.stdout).trim(),
+            String::from_utf8_lossy(&output.stderr).trim()
+        ))
+    }
+} // run_sudo_command
 
-    match output_result {
-        Ok(output) => {
-            if output.status.success() {
-                return 0;
-            } else {
-                eprintln!(
-                    "Command `{}` as user `{}` failed:\nStdout: {}\nStderr: {}",
-                    command.red(),
-                    user.red(),
-                    String::from_utf8_lossy(&output.stdout).trim(),
-                    String::from_utf8_lossy(&output.stderr).trim()
-                );
-                return 1; // Or some other non-zero error code
+/// runs sudo commands with stdin
+fn run_sudo_command_with_stdin(
+    command: &str,
+    args: &[&str],
+    stdin_content: String,
+) -> Result<(), String> {
+    let mut cmd = Command::new("sudo")
+        .arg(command)
+        .args(args)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::null())
+        .spawn()
+        .map_err(|e| format!("failed to spawn command `{}`: {}", command, e))?;
+
+    if let Some(mut stdin) = cmd.stdin.take() {
+        stdin
+            .write_all(stdin_content.as_bytes())
+            .map_err(|e| format!("failed to write to stdin of `{}`: {}", command, e))?;
+    }
+
+    let output = cmd
+        .wait_with_output()
+        .map_err(|e| format!("failed to wait for command `{}`: {}", command, e))?;
+
+    if output.status.success() {
+        Ok(())
+    } else {
+        Err(format!(
+            "command `{}` failed:\nStdout: {}\nStderr: {}",
+            command.red(),
+            String::from_utf8_lossy(&output.stdout).trim(),
+            String::from_utf8_lossy(&output.stderr).trim()
+        ))
+    }
+}
+
+/// sets up iptables
+pub fn iptables_file_setup() -> i8 {
+    let source_path = Path::new("../configs/iptables.rules");
+    let dest_path = Path::new("/etc/iptables/iptables.rules");
+
+    match read_to_string(source_path) {
+        Ok(rules) => {
+            let command = "tee";
+            let args = &[dest_path.as_os_str().to_str().unwrap()];
+
+            match run_sudo_command_with_stdin(command, args, rules) {
+                Ok(_) => {
+                    println!("iptables.rules {}", "created successfully".green());
+                    return 0;
+                }
+                Err(e) => {
+                    eprintln!("error setting up iptables file: {}", e);
+                    1
+                }
             }
         }
         Err(e) => {
-            eprintln!(
-                "Failed to execute command `{}` as user `{}`: {}",
-                command.red(),
-                user.red(),
-                e
-            );
-            return 2; // Or a different non-zero error code to distinguish execution failure
+            eprintln!("failed to read iptables rules from source file: {}", e);
+            2
         }
     }
-} // run_command_as
+} // iptables_setup()
+
+/// immediately sets up iptables rules
+pub fn iptables_rules_setup() -> i8 {
+    let rules_path = String::from("/etc/iptables/iptables.rules");
+    let command = "bash";
+    let args = &["-c", &format!("iptables-restore < {}", rules_path)];
+
+    match run_sudo_command(command, args) {
+        Ok(_) => {
+            println!("iptables.rules {}", "set successfully".green());
+            0
+        }
+        Err(e) => {
+            eprintln!("error applying iptables rules: {}", e);
+            1
+        }
+    }
+} // iptables_rules_setup()
+
+/// installs software
+pub fn software_setup(packages: &[String]) -> i8 {
+    let output = Command::new("sudo")
+        .arg("pacman")
+        .arg("-Sy")
+        .args(packages.iter().map(|s| s.as_str()))
+        .arg("--noconfirm")
+        .output()
+        .expect("failed to install necessary software.");
+
+    if output.status.success() {
+        println!("software {}", "installed successfully".green());
+        return 0;
+    } else {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+
+        if !stderr.contains("error:") && !stderr.contains("failed to download") {
+            let stdout = String::from_utf8_lossy(&output.stdout);
+            println!("{}", stdout);
+            eprintln!("{}", "warnings encountered during installation.".yellow());
+            return 0;
+        } else {
+            eprintln!("{}{}", "error:\n".red(), stderr.red());
+            return 1;
+        }
+    }
+} // software_setup()
 
 /// installs oh my zsh
-pub fn install_omz(username: String) -> i8 {
+pub fn install_omz() -> i8 {
     let command = "curl";
     let args = &[
         "-fsSL",
         "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh",
     ];
-    run_command_as(command, args, username.as_str())
+
+    match run_user_command(command, args) {
+        Ok(_) => {
+            println!("oh-my-zsh {}", "installed successfully".green());
+            return 0;
+        }
+        Err(e) => {
+            eprintln!("{}{}", "error downloading oh-my-zsh:".red(), e.red());
+            return 1;
+        }
+    }
 } // install_omz
 
 /// installs zsh autosuggestions plugin
-pub fn install_zsh_autosuggestions(username: String, home_dir: String) -> i8 {
+pub fn install_zsh_autosuggestions(home_dir: String) -> i8 {
     let command = "git";
-    let zsh_custom_path = format!("{}/.oh-my-zsh/custom/plugins", home_dir);
+    let zsh_custom_path = format!("{}/.oh-my-zsh/custom/plugins/zsh-autosuggestions", home_dir);
     let args = &[
         "clone",
         "https://github.com/zsh-users/zsh-autosuggestions",
         &zsh_custom_path,
     ];
-    run_command_as(command, args, username.as_str())
+
+    match run_user_command(command, args) {
+        Ok(_) => {
+            println!("zsh-autosuggestions {}", "installed successfully".green());
+            return 0;
+        }
+        Err(e) => {
+            eprintln!(
+                "{}{}",
+                "error downloading zsh-autosuggestions:".red(),
+                e.red()
+            );
+            return 1;
+        }
+    }
 } // install_zsh_autosuggestions
 
 /// installs zsh syntax highlighting plugin
-pub fn install_zsh_syntax_highlighting(username: String, home_dir: String) -> i8 {
+pub fn install_zsh_syntax_highlighting(home_dir: String) -> i8 {
     let command = "git";
-    let zsh_custom_path = format!("{}/.oh-my-zsh/custom/plugins", home_dir);
+    let zsh_custom_path = format!(
+        "{}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting",
+        home_dir
+    );
     let args = &[
         "clone",
         "https://github.com/zsh-users/zsh-syntax-highlighting.git",
         &zsh_custom_path,
     ];
-    run_command_as(command, args, username.as_str())
+
+    match run_user_command(command, args) {
+        Ok(_) => {
+            println!(
+                "zsh-syntax-highlighting {}",
+                "installed successfully".green()
+            );
+            return 0;
+        }
+        Err(e) => {
+            eprintln!(
+                "{}{}",
+                "error downloading zsh-syntax-highlighting:".red(),
+                e.red()
+            );
+            return 1;
+        }
+    }
 } // install_zsh_syntax_highlighting
 
 /// sets up config files in home directory
-pub fn user_config_setup(config_path: String, home_dir: String) -> i8 {
-    let destination_path = String::from(format!("{}/", home_dir));
+pub fn user_config_setup(config_path: String, home_dir: String, cfg_name: &str) -> i8 {
+    let source = Path::new(&config_path);
+    let filename = source.file_name();
 
-    match std::fs::copy(config_path, &destination_path) {
-        Ok(_) => {
-            return 0;
+    match filename {
+        Some(name) => {
+            let destination_path = Path::new(&home_dir).join(name);
+            match std::fs::copy(config_path, &destination_path) {
+                Ok(_) => {
+                    println!("{} {}", cfg_name, "custom config was installed".green());
+                    return 0;
+                }
+                Err(e) => {
+                    eprintln!(
+                        "error: custom config failed to install {} to '{}': {}",
+                        cfg_name,
+                        destination_path.display(),
+                        e
+                    );
+                    return 1;
+                }
+            }
         }
-        Err(_) => {
+        None => {
+            eprintln!(
+                "error: could not determine filename from path: {}",
+                config_path.red()
+            );
             return 1;
         }
     }
@@ -283,14 +314,11 @@ pub fn setup_root_config(home_dir: String) -> i8 {
         "ln",
         &["-s", oh_my_zsh_src.as_str(), oh_my_zsh_dest.as_str()],
     ) {
-        Ok(_) => println!(
-            "{}\n",
-            "Created symbolic link for /root/.oh-my-zsh\n".green()
-        ),
+        Ok(_) => println!("/root/.oh-my-zsh {}", "created symbolic link".green()),
         Err(e) => {
             eprintln!(
-                "{}{}\n",
-                "Error creating symbolic link for /root/.oh-my-zsh:\n".red(),
+                "{}{}",
+                "error creating symbolic link for /root/.oh-my-zsh:".red(),
                 e.red()
             );
             return 1;
@@ -299,11 +327,11 @@ pub fn setup_root_config(home_dir: String) -> i8 {
 
     // Create symbolic link for .zshrc
     match run_sudo_command("ln", &["-s", zshrc_src.as_str(), zshrc_dest.as_str()]) {
-        Ok(_) => println!("{}\n", "Created symbolic link for /root/.zshrc\n".green()),
+        Ok(_) => println!("/root/.zshrc {}", "created symbolic link for ".green()),
         Err(e) => {
             eprintln!(
-                "{}{}\n",
-                "Error creating symbolic link for /root/.zshrc:\n".red(),
+                "{}{}",
+                "error creating symbolic link for /root/.zshrc:".red(),
                 e.red()
             );
             return 2;
@@ -312,11 +340,11 @@ pub fn setup_root_config(home_dir: String) -> i8 {
 
     // Create symbolic link for .vimrc
     match run_sudo_command("ln", &["-s", vimrc_src.as_str(), vimrc_dest.as_str()]) {
-        Ok(_) => println!("{}\n", "Created symbolic link for /root/.vimrc\n".green()),
+        Ok(_) => println!("/root/.vimrc {}", "created symbolic link".green()),
         Err(e) => {
             eprintln!(
-                "{}{}\n",
-                "Error creating symbolic link for /root/.vimrc:\n".red(),
+                "{}{}",
+                "error creating symbolic link for /root/.vimrc:".red(),
                 e.red()
             );
             return 3;
@@ -337,15 +365,12 @@ pub fn zram_swap_setup() -> i8 {
     match output {
         Ok(output) => {
             if output.status.success() {
-                println!(
-                    "{}\n",
-                    "ZRAM swap configuration copied successfully.".green()
-                );
+                println!("zram {}", "swap configuration copied successfully.".green());
                 return 0;
             } else {
                 eprintln!(
-                    "{}{}\n",
-                    "Error copying zram-generator.conf:\n".red(),
+                    "{}{}",
+                    "error copying zram-generator.conf:".red(),
                     String::from_utf8_lossy(&output.stderr).red()
                 );
                 return 1;
@@ -353,8 +378,8 @@ pub fn zram_swap_setup() -> i8 {
         }
         Err(e) => {
             eprintln!(
-                "{}{}\n",
-                "Error executing command:\n".red(),
+                "{}{}",
+                "error executing command:".red(),
                 e.to_string().red()
             );
             return 2;

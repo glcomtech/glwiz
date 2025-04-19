@@ -37,24 +37,20 @@ pub fn gnu_linux_default_setup() {
     });
 
     // sets up zsh shell
-    validate_task_status(install_omz(user_cfg.get_name()));
-    validate_task_status(install_zsh_autosuggestions(
-        user_cfg.get_name(),
-        user_cfg.get_home(),
-    ));
-    validate_task_status(install_zsh_syntax_highlighting(
-        user_cfg.get_name(),
-        user_cfg.get_home(),
-    ));
+    validate_task_status(install_omz());
+    validate_task_status(install_zsh_autosuggestions(user_cfg.get_home()));
+    validate_task_status(install_zsh_syntax_highlighting(user_cfg.get_home()));
     validate_task_status(user_config_setup(
-        "../../configs/.zshrc".to_string(),
+        "../configs/.zshrc".to_string(),
         user_cfg.get_home(),
+        "zsh",
     ));
 
     // sets up vim configuration
     validate_task_status(user_config_setup(
-        "../../configs/.vimrc".to_string(),
+        "../configs/.vimrc".to_string(),
         user_cfg.get_home(),
+        "vim",
     ));
 
     // sets up zsh, its plugins, .vimrc and .zshrc for root user

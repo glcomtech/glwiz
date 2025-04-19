@@ -24,9 +24,9 @@ under certain conditions; for details see https://www.gnu.org/licenses/gpl-3.0.h
 
 /// validates if user has root priviliges. Terminates the program otherwise.
 pub fn validate_root_priviliges() {
-    if unsafe { libc::getuid() } != 0 {
-        eprintln!("{}", "This program requires root privileges. Please run with sudo using your current user.\nExample: sudo ./gnulinwiz".red());
-        // exits if not root
+    if unsafe { libc::getuid() } == 0 {
+        eprintln!("{}", "this program is not recommended to run with root privileges. please run it with your current user.\nexample: ./gnulinwiz".red());
+        // exits if root
         exit(1);
     }
 } // validate_root_priviliges()
@@ -35,7 +35,7 @@ pub fn validate_root_priviliges() {
 pub fn print_setup_status_success() {
     println!(
         "{}",
-        "All set! Your GNU/Linux system is ready to use!".green()
+        "all set! your gnu/linux system is ready to use!".green()
     );
 } // print_setup_status_success()
 
@@ -43,7 +43,7 @@ pub fn print_setup_status_success() {
 pub fn print_setup_status_failed() {
     println!(
         "{}",
-        "Something went wrong... Please fix the reported problems and re-run the program.".red()
+        "something went wrong... please fix the reported problems and re-run the program.".red()
     );
 } // print_setup_status_failed()
 
@@ -51,23 +51,23 @@ pub fn print_setup_status_failed() {
 pub fn check_sw_install_type() -> bool {
     println!(
         "{}",
-        "Enter 0 for the default list of software or 1 to enter a custom list:".yellow()
+        "enter any number for the default list of software or 0 to enter a custom list:".yellow()
     );
 
     let input = read_input().trim().to_string();
 
     match input.parse::<i8>() {
-        Ok(value) if value == 1 => {
-            println!("{}", "You chose to enter a custom list.".green());
+        Ok(value) if value == 0 => {
+            println!("{}", "you chose to enter a custom list.\ninstallation takes a few minutes, please wait...".green());
             true
         }
         Ok(_) => {
-            println!("{}", "You chose to use the default list.".green());
+            println!("{}", "you chose to use the default list.\ninstallation takes a few minutes, please wait...".green());
             false
         }
         Err(_) => {
-            handle_error("Please enter a valid number (0 or 1).");
-            false // Return false in case of error, or you can choose to exit
+            handle_error("please enter a valid number (0 or 1).");
+            false
         }
     }
 } // check_sw_install_type
@@ -76,7 +76,7 @@ pub fn check_sw_install_type() -> bool {
 fn read_input() -> String {
     let mut input = String::new();
     if let Err(error) = stdin().read_line(&mut input) {
-        handle_error(&format!("{}{}", "Error reading input:".red(), error));
+        handle_error(&format!("{}{}", "error reading input:".red(), error));
         exit(1);
     }
     input
@@ -84,7 +84,7 @@ fn read_input() -> String {
 
 /// Handles errors by printing the error message and performing any necessary cleanup.
 fn handle_error(message: &str) {
-    eprintln!("{}{}", "Error: ".red(), message);
+    eprintln!("{}{}", "error: ".red(), message);
     print_setup_status_failed();
     exit(1);
 } // handle_error
@@ -94,10 +94,10 @@ pub fn set_sw_list() -> Vec<String> {
     let mut packages = Vec::new();
     let mut input = String::new();
 
-    println!("Enter the software packages to install (separated by spaces):");
+    println!("enter the software packages to install (separated by spaces):");
     std::io::stdin()
         .read_line(&mut input)
-        .expect("Failed to read line");
+        .expect("failed to read line");
 
     packages.extend(input.trim().split_whitespace().map(String::from));
 
