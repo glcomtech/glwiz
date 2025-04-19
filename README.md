@@ -25,7 +25,7 @@ cd gnulinwiz_0_1_0/program
 ```
 And finally run the program:
 ```
-sudo ./gnulinwiz
+./gnulinwiz
 ```
 
 ---
