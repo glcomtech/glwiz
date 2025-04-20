@@ -95,11 +95,9 @@ pub fn check_sw_install_type() -> bool {
             println!("{}", "you chose to use the default list.\ninstallation takes a few minutes, please wait...".green());
             return false;
         }
-        Err(_) => {
-            handle_error(
-                "please enter 0 for a custom list or any other number for the default list.",
-            )
-        }
+        Err(_) => handle_error(
+            "please enter 0 for a custom list or any other number for the default list.",
+        ),
     }
 }
 

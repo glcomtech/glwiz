@@ -25,7 +25,8 @@ use functionality::{
     env::get_env_var,
     iptables::{iptables_file_setup, iptables_rules_setup},
     prog_fun::{
-        check_sw_install_type, default_sw_package, handle_error, print_license_info, print_setup_status_success, set_sw_list, validate_root_priviliges
+        check_sw_install_type, default_sw_package, handle_error, print_license_info,
+        print_setup_status_success, set_sw_list, validate_root_priviliges,
     },
     shell::{
         change_def_shell, install_omz, install_zsh_autosuggestions, install_zsh_syntax_highlighting,

@@ -22,30 +22,53 @@ use super::commands::{run_sudo_command, run_sudo_command_with_stdin};
 use colored::Colorize;
 use std::{fs::read_to_string, path::Path};
 
-/// sets up iptables
+/// sets up iptables file by reading from source and writing to destination as root
 pub fn iptables_file_setup() -> i8 {
     let source_path = Path::new("../configs/iptables.rules");
     let dest_path = Path::new("/etc/iptables/iptables.rules");
 
-    match read_to_string(source_path) {
-        Ok(rules) => {
-            let command = "tee";
-            let args = &[dest_path.as_os_str().to_str().unwrap()];
+    let rules = match read_to_string(source_path) {
+        Ok(rules_content) => rules_content,
+        Err(e) => {
+            eprintln!(
+                "{} failed to read iptables rules from source file '{}': {}",
+                "error:".red(),
+                source_path.display(),
+                e
+            );
+            return 2;
+        }
+    };
 
-            match run_sudo_command_with_stdin(command, args, rules) {
-                Ok(_) => {
-                    println!("iptables.rules {}", "created successfully".green());
-                    return 0;
-                }
-                Err(e) => {
-                    eprintln!("error setting up iptables file: {}", e);
-                    1
-                }
-            }
+    let command = "tee";
+
+    let dest_path_str = match dest_path.to_str() {
+        Some(s) => s,
+        None => {
+            eprintln!(
+                "{} destination path '{}' is not valid UTF-8.",
+                "error:".red(),
+                dest_path.display()
+            );
+            return 1;
+        }
+    };
+
+    let args = &[dest_path_str];
+
+    match run_sudo_command_with_stdin(command, args, rules) {
+        Ok(()) => {
+            println!("iptables.rules {}", "created successfully".green());
+            return 0;
         }
         Err(e) => {
-            eprintln!("failed to read iptables rules from source file: {}", e);
-            2
+            eprintln!(
+                "{} failed to write iptables rules to '{}': {}",
+                "error:".red(),
+                dest_path.display(),
+                e.red()
+            );
+            return 1;
         }
     }
 }
@@ -59,11 +82,11 @@ pub fn iptables_rules_setup() -> i8 {
     match run_sudo_command(command, args) {
         Ok(_) => {
             println!("iptables.rules {}", "set successfully".green());
-            0
+            return 0;
         }
         Err(e) => {
             eprintln!("error applying iptables rules: {}", e);
-            1
+            return 1;
         }
     }
 }

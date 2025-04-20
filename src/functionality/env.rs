@@ -28,8 +28,12 @@ pub fn get_env_var(env_var: &str) -> Option<String> {
     match var(env_var) {
         Ok(value) => Some(value),
         Err(e) => {
-            eprintln!("{} failed to get environment variable '{}': {}",
-                      "error:".red(), env_var, e);
+            eprintln!(
+                "{} failed to get environment variable '{}': {}",
+                "error:".red(),
+                env_var,
+                e
+            );
             None
         }
     }

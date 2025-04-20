@@ -69,21 +69,37 @@ fn copy_item_as_root(src: &str, dest: &str, description: &str) -> i8 {
             return 0;
         }
         Err(e) => {
-            eprintln!("{} failed to copy '{}' to '{}': {}",
-                      "error:".red(), src, dest, e.red());
+            eprintln!(
+                "{} failed to copy '{}' to '{}': {}",
+                "error:".red(),
+                src,
+                dest,
+                e.red()
+            );
             return 1;
         }
     }
 }
 
-
 /// sets up root config in /root directory by copying files/directories from user's home
 /// Note: Copies .oh-my-zsh, .zshrc, and .vimrc using 'cp -r' via sudo.
 pub fn setup_root_config(home_dir: &str) -> i8 {
     let items_to_copy = [
-        (format!("{}/.oh-my-zsh", home_dir), "/root/.oh-my-zsh".to_string(), "/root/.oh-my-zsh"),
-        (format!("{}/.zshrc", home_dir), "/root/.zshrc".to_string(), "/root/.zshrc"),
-        (format!("{}/.vimrc", home_dir), "/root/.vimrc".to_string(), "/root/.vimrc"),
+        (
+            format!("{}/.oh-my-zsh", home_dir),
+            "/root/.oh-my-zsh".to_string(),
+            "/root/.oh-my-zsh",
+        ),
+        (
+            format!("{}/.zshrc", home_dir),
+            "/root/.zshrc".to_string(),
+            "/root/.zshrc",
+        ),
+        (
+            format!("{}/.vimrc", home_dir),
+            "/root/.vimrc".to_string(),
+            "/root/.vimrc",
+        ),
     ];
 
     for (src, dest, desc) in &items_to_copy {

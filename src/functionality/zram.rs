@@ -18,38 +18,28 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use super::commands::run_sudo_command;
 use colored::Colorize;
-use std::process::Command;
 
-/// sets up zram swap configuration
+/// sets up zram swap configuration by copying the generator file
 pub fn zram_swap_setup() -> i8 {
-    let output = Command::new("sudo")
-        .arg("cp")
-        .arg("../configs/zram-generator.conf")
-        .arg("/etc/systemd/")
-        .output();
+    let source_config_path = "../configs/zram-generator.conf";
+    let destination_path = "/etc/systemd/zram-generator.conf";
 
-    match output {
-        Ok(output) => {
-            if output.status.success() {
-                println!("zram {}", "swap configuration copied successfully.".green());
-                return 0;
-            } else {
-                eprintln!(
-                    "{}{}",
-                    "error copying zram-generator.conf:".red(),
-                    String::from_utf8_lossy(&output.stderr).red()
-                );
-                return 1;
-            }
+    let result = run_sudo_command("cp", &[source_config_path, destination_path]);
+
+    match result {
+        Ok(()) => {
+            println!("zram {}", "swap configuration copied successfully.".green());
+            return 0;
         }
         Err(e) => {
             eprintln!(
-                "{}{}",
-                "error executing command:".red(),
-                e.to_string().red()
+                "{} failed to copy zram-generator.conf: {}",
+                "error:".red(),
+                e.red()
             );
-            return 2;
+            return 1;
         }
     }
 }

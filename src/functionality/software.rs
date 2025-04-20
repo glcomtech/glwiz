@@ -18,9 +18,9 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use super::prog_fun::handle_error;
 use colored::Colorize;
 use std::process::Command;
-use super::prog_fun::handle_error;
 
 /// installs software using pacman
 /// Takes a slice of string slices for package names.
@@ -34,7 +34,12 @@ pub fn software_setup(packages: &[&str]) -> i8 {
         .args(packages)
         .arg("--noconfirm");
 
-    println!("{}{}{}", "Running command: sudo pacman -Sy ".green(), packages.join(" "), " --noconfirm".green());
+    println!(
+        "Running command: {}{}{}",
+        "sudo pacman -Sy ".green(),
+        packages.join(" "),
+        " --noconfirm".green()
+    );
 
     let output = match command.output() {
         Ok(output) => output,
