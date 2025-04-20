@@ -56,54 +56,40 @@ pub fn user_config_setup(config_path: &str, home_dir: &str, cfg_name: &str) -> i
     }
 }
 
-/// sets up root config in /root directory
-pub fn setup_root_config(home_dir: &str) -> i8 {
-    let oh_my_zsh_src = format!("{}{}", home_dir, "/.oh-my-zsh");
-    let oh_my_zsh_dest = String::from("/root/.oh-my-zsh");
-    let zshrc_src = format!("{}{}", home_dir, "/.zshrc");
-    let zshrc_dest = String::from("/root/.zshrc");
-    let vimrc_src = format!("{}{}", home_dir, "/.vimrc");
-    let vimrc_dest = String::from("/root/.vimrc");
+/// Helper function to copy a file or directory as root.
+/// Takes source path, destination path, and a description for messages.
+/// Uses 'cp -r' via run_sudo_command.
+/// Returns 0 on success, 1 on failure.
+fn copy_item_as_root(src: &str, dest: &str, description: &str) -> i8 {
+    let args = &["-r", src, dest];
 
-    // Create symbolic link for .oh-my-zsh
-    match run_sudo_command(
-        "cp",
-        &["-r", oh_my_zsh_src.as_str(), oh_my_zsh_dest.as_str()],
-    ) {
-        Ok(_) => println!("/root/.oh-my-zsh {}", "created configuration".green()),
+    match run_sudo_command("cp", args) {
+        Ok(_) => {
+            println!("{} {}", description, "created configuration".green());
+            return 0;
+        }
         Err(e) => {
-            eprintln!(
-                "{}{}",
-                "error creating configuration /root/.oh-my-zsh:".red(),
-                e.red()
-            );
+            eprintln!("{} failed to copy '{}' to '{}': {}",
+                      "error:".red(), src, dest, e.red());
             return 1;
         }
     }
+}
 
-    // Create symbolic link for .zshrc
-    match run_sudo_command("cp", &["-r", zshrc_src.as_str(), zshrc_dest.as_str()]) {
-        Ok(_) => println!("/root/.zshrc {}", "created configuration".green()),
-        Err(e) => {
-            eprintln!(
-                "{}{}",
-                "error creating configuration /root/.zshrc:".red(),
-                e.red()
-            );
-            return 2;
-        }
-    }
 
-    // Create symbolic link for .vimrc
-    match run_sudo_command("cp", &["-r", vimrc_src.as_str(), vimrc_dest.as_str()]) {
-        Ok(_) => println!("/root/.vimrc {}", "created configuration".green()),
-        Err(e) => {
-            eprintln!(
-                "{}{}",
-                "error creating configuration /root/.vimrc:".red(),
-                e.red()
-            );
-            return 3;
+/// sets up root config in /root directory by copying files/directories from user's home
+/// Note: Copies .oh-my-zsh, .zshrc, and .vimrc using 'cp -r' via sudo.
+pub fn setup_root_config(home_dir: &str) -> i8 {
+    let items_to_copy = [
+        (format!("{}/.oh-my-zsh", home_dir), "/root/.oh-my-zsh".to_string(), "/root/.oh-my-zsh"),
+        (format!("{}/.zshrc", home_dir), "/root/.zshrc".to_string(), "/root/.zshrc"),
+        (format!("{}/.vimrc", home_dir), "/root/.vimrc".to_string(), "/root/.vimrc"),
+    ];
+
+    for (src, dest, desc) in &items_to_copy {
+        let status = copy_item_as_root(src.as_str(), dest.as_str(), desc);
+        if status != 0 {
+            return 1;
         }
     }
 

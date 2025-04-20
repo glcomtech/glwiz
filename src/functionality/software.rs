@@ -34,7 +34,7 @@ pub fn software_setup(packages: &[&str]) -> i8 {
         .args(packages)
         .arg("--noconfirm");
 
-    println!("{}{} --noconfirm", "Running command: sudo pacman -Sy ".green(), packages.join(" "));
+    println!("{}{}{}", "Running command: sudo pacman -Sy ".green(), packages.join(" "), " --noconfirm".green());
 
     let output = match command.output() {
         Ok(output) => output,
