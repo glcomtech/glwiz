@@ -1,31 +1,31 @@
 /*
  *  gnulinwiz AKA GNU/Linux Config Wizard: The ultimate post-installation setup assistant for Linux,
  *  streamlining your configuration process with ease and precision.
- *  
+ *
  *  Copyright (C) 2025  Andrew Kushyk
- *  
+ *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
- *  
+ *
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 pub mod functionality;
+use colored::Colorize;
 use functionality::{
     configs::{setup_root_config, user_config_setup},
-    env::validate_env_var,
+    env::get_env_var,
     iptables::{iptables_file_setup, iptables_rules_setup},
     prog_fun::{
-        check_sw_install_type, default_sw_package, print_license_info, print_setup_status_success,
-        set_sw_list, validate_root_priviliges,
+        check_sw_install_type, default_sw_package, handle_error, print_license_info, print_setup_status_success, set_sw_list, validate_root_priviliges
     },
     shell::{
         change_def_shell, install_omz, install_zsh_autosuggestions, install_zsh_syntax_highlighting,
@@ -46,12 +46,24 @@ pub fn gnu_linux_default_setup() {
 
     // sets up gnu/linux username and home path
     let mut user_cfg = UserCfg::new();
-    let user_name = validate_env_var("USER");
-    validate_task_status(user_cfg.set_name(user_name));
-    let home_dir = validate_env_var("HOME");
-    validate_task_status(user_cfg.set_home(home_dir));
-    println!("{}", user_cfg.get_name());
-    println!("{}", user_cfg.get_home());
+    let user_name_option = get_env_var("USER");
+    let user_name = match user_name_option {
+        Some(name) => name,
+        None => {
+            handle_error("setup cannot continue without the USER environment variable.");
+        }
+    };
+    let home_dir_option = get_env_var("HOME");
+    let home_dir = match home_dir_option {
+        Some(dir) => dir, // Got the String, unwrap it
+        None => {
+            handle_error("setup cannot continue without the USER environment variable.");
+        }
+    };
+    user_cfg.set_name(user_name.as_str());
+    user_cfg.set_home(home_dir.as_str());
+    println!("username: {}", user_cfg.get_name().green());
+    println!("home location: {}", user_cfg.get_home().green());
 
     // sets up iptables firewall and initializes rules
     validate_task_status(iptables_file_setup());
@@ -59,27 +71,29 @@ pub fn gnu_linux_default_setup() {
 
     // sets up a list of sw to download
     validate_task_status(if check_sw_install_type() {
-        software_setup(&set_sw_list())
+        let package_strings: Vec<String> = set_sw_list();
+        let package_slices: Vec<&str> = package_strings.iter().map(|s| s.as_str()).collect();
+        software_setup(&package_slices)
     } else {
-        software_setup(&default_sw_package())
+        software_setup(default_sw_package())
     });
 
     validate_task_status(change_def_shell(user_cfg.get_name()));
-    validate_task_status(change_def_shell("root".to_string()));
+    validate_task_status(change_def_shell("root"));
 
     // sets up zsh shell
     validate_task_status(install_omz());
     validate_task_status(install_zsh_autosuggestions(user_cfg.get_home()));
     validate_task_status(install_zsh_syntax_highlighting(user_cfg.get_home()));
     validate_task_status(user_config_setup(
-        "../configs/.zshrc".to_string(),
+        "../configs/.zshrc",
         user_cfg.get_home(),
         "zsh",
     ));
 
     // sets up vim configuration
     validate_task_status(user_config_setup(
-        "../configs/.vimrc".to_string(),
+        "../configs/.vimrc",
         user_cfg.get_home(),
         "vim",
     ));
@@ -92,4 +106,4 @@ pub fn gnu_linux_default_setup() {
 
     // prints status if no errors occured
     print_setup_status_success();
-} // gnu_linux_setup()
+}

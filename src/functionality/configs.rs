@@ -1,19 +1,19 @@
 /*
  *  gnulinwiz AKA GNU/Linux Config Wizard: The ultimate post-installation setup assistant for Linux,
  *  streamlining your configuration process with ease and precision.
- *  
+ *
  *  Copyright (C) 2025  Andrew Kushyk
- *  
+ *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
- *  
+ *
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -23,7 +23,7 @@ use colored::Colorize;
 use std::path::Path;
 
 /// sets up config files in home directory
-pub fn user_config_setup(config_path: String, home_dir: String, cfg_name: &str) -> i8 {
+pub fn user_config_setup(config_path: &str, home_dir: &str, cfg_name: &str) -> i8 {
     let source = Path::new(&config_path);
     let filename = source.file_name();
 
@@ -54,10 +54,10 @@ pub fn user_config_setup(config_path: String, home_dir: String, cfg_name: &str) 
             return 1;
         }
     }
-} // user_config_setup
+}
 
 /// sets up root config in /root directory
-pub fn setup_root_config(home_dir: String) -> i8 {
+pub fn setup_root_config(home_dir: &str) -> i8 {
     let oh_my_zsh_src = format!("{}{}", home_dir, "/.oh-my-zsh");
     let oh_my_zsh_dest = String::from("/root/.oh-my-zsh");
     let zshrc_src = format!("{}{}", home_dir, "/.zshrc");
@@ -108,4 +108,4 @@ pub fn setup_root_config(home_dir: String) -> i8 {
     }
 
     return 0;
-} // setup_root_config
+}
