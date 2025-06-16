@@ -21,7 +21,27 @@
 use crate::functionality::prog_fun::print_setup_status_failed;
 use std::process::exit;
 
-/// validates task status
+/// Validates the status of a task and exits the program on failure.
+///
+/// Checks the provided status code and, if it is non-zero, prints a failure message
+/// using `print_setup_status_failed` and terminates the program with the status code
+/// as the exit code. This function ensures that any task failure halts the configuration
+/// process to prevent further errors.
+///
+/// # Arguments
+/// * `status` - The status code of a task (0 for success, non-zero for failure).
+///
+/// # Panics
+/// Exits the program with the provided `status` code (cast to `i32`) if it is non-zero.
+///
+/// # Examples
+/// ```
+/// // Successful task
+/// validate_task_status(0); // Continues execution
+///
+/// // Failed task
+/// // validate_task_status(1); // Prints failure message and exits with code 1
+/// ```
 pub fn validate_task_status(status: i8) {
     if status != 0 {
         print_setup_status_failed();

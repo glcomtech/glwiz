@@ -18,7 +18,9 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+/// Core functionality for the GNU/Linux Config Wizard, providing tools for system configuration.
 pub mod functionality;
+
 use colored::Colorize;
 use functionality::{
     configs::{setup_root_config, user_config_setup},
@@ -37,7 +39,23 @@ use functionality::{
     zram::zram_swap_setup,
 };
 
-/// default function for setting up necessary tools
+/// Performs a default post-installation setup for a GNU/Linux system.
+///
+/// This function orchestrates the configuration of essential system components, including:
+/// - Displaying license information
+/// - Validating root privileges
+/// - Configuring user and root environment settings
+/// - Setting up the iptables firewall
+/// - Installing specified or default software packages
+/// - Configuring the Zsh shell with plugins
+/// - Setting up Vim and Zsh configurations for both user and root
+/// - Enabling ZRAM swap
+///
+/// The function validates each task and halts on errors, ensuring a robust setup process.
+/// On successful completion, it prints a success message.
+///
+/// # Panics
+/// Panics if critical environment variables (`USER` or `HOME`) are not set, or if any setup task fails.
 pub fn gnu_linux_default_setup() {
     // prints license info
     print_license_info();

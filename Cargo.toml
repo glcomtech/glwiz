@@ -1,6 +1,6 @@
 [package]
 name = "gnulinwiz"
-version = "0.1.0-stable"
+version = "0.2.0-stable"
 edition = "2021"
 authors = ["Andrew Kushyk <akushyk799 at gmail.com>"]
 description = "gnulinwiz (GNU/Linux Config Wizard) The ultimate post-installation setup assistant for GNU/Linux, streamlining your configuration process with ease and precision."

@@ -22,7 +22,26 @@ use super::commands::run_sudo_command;
 use colored::Colorize;
 use std::path::Path;
 
-/// sets up config files in home directory
+/// Copies a configuration file to the user's home directory.
+///
+/// This function copies a specified configuration file to the user's home directory,
+/// preserving the original filename. It is used to set up user-specific configurations
+/// such as `.zshrc` or `.vimrc`.
+///
+/// # Arguments
+/// * `config_path` - Path to the source configuration file.
+/// * `home_dir` - Path to the user's home directory.
+/// * `cfg_name` - Descriptive name of the configuration (e.g., "zsh", "vim") for logging purposes.
+///
+/// # Returns
+/// * `0` if the configuration file is copied successfully.
+/// * `1` if an error occurs, such as an invalid path or file copy failure.
+///
+/// # Examples
+/// ```
+/// let result = user_config_setup("../configs/.zshrc", "/home/user", "zsh");
+/// assert_eq!(result, 0);
+/// ```
 pub fn user_config_setup(config_path: &str, home_dir: &str, cfg_name: &str) -> i8 {
     let source = Path::new(&config_path);
     let filename = source.file_name();
@@ -56,10 +75,9 @@ pub fn user_config_setup(config_path: &str, home_dir: &str, cfg_name: &str) -> i
     }
 }
 
-/// Helper function to copy a file or directory as root.
-/// Takes source path, destination path, and a description for messages.
-/// Uses 'cp -r' via run_sudo_command.
-/// Returns 0 on success, 1 on failure.
+// Helper function to copy a file or directory as root using `cp -r` via sudo.
+// Takes source path, destination path, and a description for logging.
+// Returns 0 on success, 1 on failure.
 fn copy_item_as_root(src: &str, dest: &str, description: &str) -> i8 {
     let args = &["-r", src, dest];
 
@@ -81,8 +99,24 @@ fn copy_item_as_root(src: &str, dest: &str, description: &str) -> i8 {
     }
 }
 
-/// sets up root config in /root directory by copying files/directories from user's home
-/// Note: Copies .oh-my-zsh, .zshrc, and .vimrc using 'cp -r' via sudo.
+/// Configures the root user's environment by copying configuration files from the user's home directory.
+///
+/// This function copies `.oh-my-zsh`, `.zshrc`, and `.vimrc` from the specified user home directory
+/// to the root user's directory (`/root`) using `cp -r` with sudo privileges. It ensures the root
+/// user has consistent shell and editor configurations.
+///
+/// # Arguments
+/// * `home_dir` - Path to the user's home directory containing the source configuration files.
+///
+/// # Returns
+/// * `0` if all configurations are copied successfully.
+/// * `1` if any copy operation fails.
+///
+/// # Examples
+/// ```
+/// let result = setup_root_config("/home/user");
+/// assert_eq!(result, 0);
+/// ```
 pub fn setup_root_config(home_dir: &str) -> i8 {
     let items_to_copy = [
         (

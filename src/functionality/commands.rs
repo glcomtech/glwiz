@@ -21,7 +21,21 @@
 use colored::Colorize;
 use std::{io::Write, process::Command, process::Stdio};
 
-/// runs sudo commands
+/// Executes a command with `sudo` privileges and captures its output.
+///
+/// # Arguments
+/// * `command` - The command to execute (e.g., "pacman", "systemctl").
+/// * `args` - A slice of arguments to pass to the command.
+///
+/// # Returns
+/// * `Ok(())` if the command executes successfully.
+/// * `Err(String)` with a formatted error message if the command fails or cannot be executed.
+///
+/// # Examples
+/// ```
+/// let result = run_sudo_command("pacman", &["update"]);
+/// assert!(result.is_ok());
+/// ```
 pub fn run_sudo_command(command: &str, args: &[&str]) -> Result<(), String> {
     let output = Command::new("sudo")
         .arg(command)
@@ -41,7 +55,21 @@ pub fn run_sudo_command(command: &str, args: &[&str]) -> Result<(), String> {
     }
 }
 
-/// runs user commands
+/// Executes a command as the current user and captures its output.
+///
+/// # Arguments
+/// * `command` - The command to execute (e.g., "ls", "git").
+/// * `args` - A slice of arguments to pass to the command.
+///
+/// # Returns
+/// * `Ok(())` if the command executes successfully.
+/// * `Err(String)` with a formatted error message if the command fails or cannot be executed.
+///
+/// # Examples
+/// ```
+/// let result = run_user_command("ls", &["-l"]);
+/// assert!(result.is_ok());
+/// ```
 pub fn run_user_command(command: &str, args: &[&str]) -> Result<(), String> {
     let output = Command::new(command)
         .args(args)
@@ -60,7 +88,27 @@ pub fn run_user_command(command: &str, args: &[&str]) -> Result<(), String> {
     }
 }
 
-/// runs sudo commands with stdin
+/// Executes a command with `sudo` privileges, passing input via stdin, and captures its output.
+///
+/// This function is useful for commands that require input, such as configuration tools or scripts
+/// that read from stdin.
+///
+/// # Arguments
+/// * `command` - The command to execute (e.g., "tee", "passwd").
+/// * `args` - A slice of arguments to pass to the command.
+/// * `stdin_content` - The content to write to the command's stdin.
+///
+/// # Returns
+/// * `Ok(())` if the command executes successfully.
+/// * `Err(String)` with a formatted error message if the command fails, cannot be spawned,
+///   or if writing to stdin fails.
+///
+/// # Examples
+/// ```
+/// let content = "some config data".to_string();
+/// let result = run_sudo_command_with_stdin("tee", &["/etc/somefile"], content);
+/// assert!(result.is_ok());
+/// ```
 pub fn run_sudo_command_with_stdin(
     command: &str,
     args: &[&str],

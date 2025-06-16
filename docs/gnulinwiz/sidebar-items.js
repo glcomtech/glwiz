@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["gnu_linux_default_setup"],"mod":["functionality"]};

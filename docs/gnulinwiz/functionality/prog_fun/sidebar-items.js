@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["check_sw_install_type","default_sw_package","handle_error","print_license_info","print_setup_status_failed","print_setup_status_success","set_sw_list","validate_root_priviliges"]};

@@ -21,9 +21,24 @@
 use colored::Colorize;
 use std::env::var;
 
-/// gets environment variables
-/// Returns the value as an owned String if found, None otherwise.
-/// Prints a basic error message if the variable is missing or reading fails.
+/// Retrieves the value of a specified environment variable.
+///
+/// This function attempts to read the value of the given environment variable and returns it as an
+/// owned `String` if found. If the variable is not set or an error occurs, it prints an error message
+/// to stderr and returns `None`.
+///
+/// # Arguments
+/// * `env_var` - The name of the environment variable to retrieve (e.g., "USER", "HOME").
+///
+/// # Returns
+/// * `Some(String)` containing the variable's value if it exists.
+/// * `None` if the variable is not set or an error occurs while reading it.
+///
+/// # Examples
+/// ```
+/// let user = get_env_var("USER");
+/// assert!(user.is_some());
+/// ```
 pub fn get_env_var(env_var: &str) -> Option<String> {
     match var(env_var) {
         Ok(value) => Some(value),
