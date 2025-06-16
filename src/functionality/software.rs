@@ -22,10 +22,28 @@ use super::prog_fun::handle_error;
 use colored::Colorize;
 use std::process::Command;
 
-/// installs software using pacman
-/// Takes a slice of string slices for package names.
-/// Returns 0 on success (including warnings treated by pacman as non-fatal),
-/// 1 on definitive failure (command failed to run or pacman reported an error).
+/// Installs software packages using the `pacman` package manager.
+///
+/// Executes `sudo pacman -Sy` with the provided package names and the `--noconfirm` flag to
+/// install software without prompting for user confirmation. Logs the command being run and
+/// the outcome, including detailed output in case of failure.
+///
+/// # Arguments
+/// * `packages` - A slice of package names to install (e.g., `["firefox", "zsh"]`).
+///
+/// # Returns
+/// * `0` if the installation succeeds (including non-fatal warnings handled by `pacman`).
+/// * `1` if the installation fails due to a command execution error or `pacman` reporting an error.
+///
+/// # Panics
+/// Exits the program via `handle_error` if the `pacman` command cannot be executed (e.g., due to
+/// permission issues or `pacman` not being found).
+///
+/// # Examples
+/// ```
+/// let result = software_setup(&["firefox", "zsh"]);
+/// assert_eq!(result, 0);
+/// ```
 pub fn software_setup(packages: &[&str]) -> i8 {
     let mut command = Command::new("sudo");
     command

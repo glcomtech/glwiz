@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["setup_root_config","user_config_setup"]};

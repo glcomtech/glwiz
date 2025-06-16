@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["change_def_shell","install_omz","install_zsh_autosuggestions","install_zsh_syntax_highlighting"]};

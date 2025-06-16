@@ -21,7 +21,22 @@
 use super::commands::run_sudo_command;
 use colored::Colorize;
 
-/// sets up zram swap configuration by copying the generator file
+/// Configures ZRAM swap by copying the ZRAM generator configuration file.
+///
+/// Copies the ZRAM configuration file from `../configs/zram-generator.conf` to
+/// `/etc/systemd/zram-generator.conf` using `cp` with sudo privileges. This sets up
+/// compressed RAM-based swap to improve system performance. Logs success or failure
+/// with appropriate messages.
+///
+/// # Returns
+/// * `0` if the configuration file is copied successfully.
+/// * `1` if the copy operation fails (e.g., due to permission issues or missing source file).
+///
+/// # Examples
+/// ```
+/// let result = zram_swap_setup();
+/// assert_eq!(result, 0);
+/// ```
 pub fn zram_swap_setup() -> i8 {
     let source_config_path = "../configs/zram-generator.conf";
     let destination_path = "/etc/systemd/zram-generator.conf";

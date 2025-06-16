@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["iptables_file_setup","iptables_rules_setup"]};

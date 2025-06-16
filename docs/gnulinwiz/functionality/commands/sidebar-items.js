@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["run_sudo_command","run_sudo_command_with_stdin","run_user_command"]};

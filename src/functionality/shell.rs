@@ -22,8 +22,23 @@ use super::commands::{run_sudo_command, run_user_command};
 use colored::Colorize;
 use std::process::{Command, Stdio};
 
-/// changes default shell to zsh for the given user
-/// Takes the username as a string slice.
+/// Changes the default shell to Zsh for the specified user.
+///
+/// Uses the `chsh` command with sudo privileges to set `/usr/bin/zsh` as the default shell
+/// for the given user. Logs success or failure with appropriate messages.
+///
+/// # Arguments
+/// * `name` - The username for which to change the default shell.
+///
+/// # Returns
+/// * `0` if the shell is changed successfully.
+/// * `1` if the command fails or an error occurs.
+///
+/// # Examples
+/// ```
+/// let result = change_def_shell("user");
+/// assert_eq!(result, 0);
+/// ```
 pub fn change_def_shell(name: &str) -> i8 {
     let command = "chsh";
     let args = &["-s", "/usr/bin/zsh", name];
@@ -45,7 +60,21 @@ pub fn change_def_shell(name: &str) -> i8 {
     }
 }
 
-/// installs oh my zsh by piping curl output to bash
+/// Installs Oh My Zsh by downloading and executing its installation script.
+///
+/// Downloads the Oh My Zsh installation script using `curl` and pipes it to `bash` for execution.
+/// Handles errors during process spawning, piping, or script execution, and logs detailed output
+/// in case of failure.
+///
+/// # Returns
+/// * `0` if Oh My Zsh is installed successfully.
+/// * `1` if any error occurs during the installation process.
+///
+/// # Examples
+/// ```
+/// let result = install_omz();
+/// assert_eq!(result, 0);
+/// ```
 pub fn install_omz() -> i8 {
     let mut curl_cmd = Command::new("curl");
     curl_cmd
@@ -147,8 +176,8 @@ pub fn install_omz() -> i8 {
     }
 }
 
-/// Helper function to clone a zsh plugin into the custom plugins directory.
-/// Takes home directory, plugin name (for directory and messages), and repository URL.
+// Helper function to clone a Zsh plugin into the Oh My Zsh custom plugins directory.
+// Clones the specified repository into the user's Oh My Zsh plugins directory using `git`.
 fn install_zsh_plugin(home_dir: &str, plugin_name: &str, repo_url: &str) -> i8 {
     let zsh_custom_path = format!("{}/.oh-my-zsh/custom/plugins/{}", home_dir, plugin_name);
     let args = &["clone", repo_url, &zsh_custom_path];
@@ -174,8 +203,23 @@ fn install_zsh_plugin(home_dir: &str, plugin_name: &str, repo_url: &str) -> i8 {
     }
 }
 
-/// installs zsh autosuggestions plugin
-/// Uses the generic zsh plugin installer.
+/// Installs the Zsh Autosuggestions plugin for the specified user's Oh My Zsh setup.
+///
+/// Clones the Zsh Autosuggestions plugin from its GitHub repository into the user's
+/// Oh My Zsh custom plugins directory.
+///
+/// # Arguments
+/// * `home_dir` - The user's home directory where Oh My Zsh is installed.
+///
+/// # Returns
+/// * `0` if the plugin is installed successfully.
+/// * `1` if the plugin installation fails (e.g., due to `git` errors).
+///
+/// # Examples
+/// ```
+/// let result = install_zsh_autosuggestions("/home/user");
+/// assert_eq!(result, 0);
+/// ```
 pub fn install_zsh_autosuggestions(home_dir: &str) -> i8 {
     install_zsh_plugin(
         home_dir,
@@ -184,8 +228,23 @@ pub fn install_zsh_autosuggestions(home_dir: &str) -> i8 {
     )
 }
 
-/// installs zsh syntax highlighting plugin
-/// Uses the generic zsh plugin installer.
+/// Installs the Zsh Syntax Highlighting plugin for the specified user's Oh My Zsh setup.
+///
+/// Clones the Zsh Syntax Highlighting plugin from its GitHub repository into the user's
+/// Oh My Zsh custom plugins directory.
+///
+/// # Arguments
+/// * `home_dir` - The user's home directory where Oh My Zsh is installed.
+///
+/// # Returns
+/// * `0` if the plugin is installed successfully.
+/// * `1` if the plugin installation fails (e.g., due to `git` errors).
+///
+/// # Examples
+/// ```
+/// let result = install_zsh_syntax_highlighting("/home/user");
+/// assert_eq!(result, 0);
+/// ```
 pub fn install_zsh_syntax_highlighting(home_dir: &str) -> i8 {
     install_zsh_plugin(
         home_dir,

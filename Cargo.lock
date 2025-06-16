@@ -13,7 +13,7 @@ dependencies = [
 
 [[package]]
 name = "gnulinwiz"
-version = "0.1.0-stable"
+version = "0.2.0-stable"
 dependencies = [
  "colored",
  "libc",
