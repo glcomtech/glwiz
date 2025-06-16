@@ -13,6 +13,8 @@ The ultimate post-installation setup assistant for GNU/Linux, streamlining your 
 
 ---
 
+## How to use
+
 To use the program download the latest version here: 
 https://gitlab.com/git-user-cpp/gnulinwiz/-/tree/main/releazes?ref_type=heads
 
@@ -47,6 +49,11 @@ If you need to use debugger, use:
 ```
 cargo build
 ```
+
+---
+
+## Documentation
+https://git-user-cpp.github.io/gnulinwiz/gnulinwiz/index.html
 
 ---
 
