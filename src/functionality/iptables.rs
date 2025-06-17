@@ -20,102 +20,115 @@
 
 use super::commands::{run_sudo_command, run_sudo_command_with_stdin};
 use colored::Colorize;
-use std::{fs::read_to_string, path::Path};
+use std::fs;
 
-/// Sets up the iptables configuration file by copying rules from a source to a destination.
+/// Sets up the iptables configuration file for network security.
 ///
-/// This function reads iptables rules from a source file (`../configs/iptables.rules`) and writes
-/// them to the system location (`/etc/iptables/iptables.rules`) using `tee` with sudo privileges.
-/// It ensures the destination path is valid UTF-8 and handles file reading and writing errors.
+/// This function copies a predefined iptables rules file from `../configs/iptables.rules` to
+/// `/etc/iptables/iptables.rules`, ensuring a secure firewall configuration in the "gnulinwiz" project.
+/// It checks for the source file’s existence and prompts the user to overwrite the destination if it
+/// exists, making the operation idempotent. The function uses `sudo` to write to the system directory,
+/// ensuring proper permissions. It is part of the post-installation setup to enhance network security.
 ///
 /// # Returns
-/// * `0` if the iptables rules file is successfully created.
-/// * `1` if the destination path is invalid or writing fails.
-/// * `2` if the source file cannot be read.
+/// * `0` - The rules file was successfully created or skipped (user chose not to overwrite).
+/// * `1` - An error occurred, such as a missing source file, read failure, or write error.
 ///
-/// # Examples
+/// # Errors
+/// Returns `1` if:
+/// - The source file `../configs/iptables.rules` does not exist.
+/// - Reading the source file fails due to permissions or I/O errors.
+/// - Writing to `/etc/iptables/iptables.rules` fails due to permissions or `sudo` issues.
+///
+/// # Example
 /// ```
+/// use gnulinwiz::functionality::iptables::iptables_file_setup;
 /// let result = iptables_file_setup();
-/// assert_eq!(result, 0);
+/// assert_eq!(result, 0); // Rules file created or skipped successfully
 /// ```
+///
+/// # See Also
+/// - `commands::run_sudo_command_with_stdin`: Used to write the rules file with `sudo`.
+/// - `prog_fun::read_input`: Used to prompt for overwrite confirmation.
+/// - `iptables_rules_setup`: Applies the configured rules.
 pub fn iptables_file_setup() -> i8 {
-    let source_path = Path::new("../configs/iptables.rules");
-    let dest_path = Path::new("/etc/iptables/iptables.rules");
+    let src = "../configs/iptables.rules";
+    let dest = "/etc/iptables/iptables.rules";
 
-    let rules = match read_to_string(source_path) {
-        Ok(rules_content) => rules_content,
+    if !std::path::Path::new(src).exists() {
+        eprintln!("{} Source file {} not found.", "error:".red(), src);
+        return 1;
+    }
+
+    let rules = match fs::read_to_string(src) {
+        Ok(r) => r,
         Err(e) => {
-            eprintln!(
-                "{} failed to read iptables rules from source file '{}': {}",
-                "error:".red(),
-                source_path.display(),
-                e
-            );
-            return 2;
-        }
-    };
-
-    let command = "tee";
-
-    let dest_path_str = match dest_path.to_str() {
-        Some(s) => s,
-        None => {
-            eprintln!(
-                "{} destination path '{}' is not valid UTF-8.",
-                "error:".red(),
-                dest_path.display()
-            );
+            eprintln!("{} Failed to read {}: {}", "error:".red(), src, e);
             return 1;
         }
     };
 
-    let args = &[dest_path_str];
-
-    match run_sudo_command_with_stdin(command, args, rules) {
-        Ok(()) => {
-            println!("iptables.rules {}", "created successfully".green());
+    if std::path::Path::new(dest).exists() {
+        println!("{} exists. Overwrite? (y/n)", dest);
+        let input = super::prog_fun::read_input().trim().to_lowercase();
+        if input != "y" {
+            println!("iptables rules {}.", "skipped".green());
             return 0;
         }
+    }
+
+    match run_sudo_command_with_stdin("tee", &[dest], rules) {
+        Ok(_) => {
+            println!("iptables rules {}.", "created".green());
+            0
+        }
         Err(e) => {
-            eprintln!(
-                "{} failed to write iptables rules to '{}': {}",
-                "error:".red(),
-                dest_path.display(),
-                e.red()
-            );
-            return 1;
+            eprintln!("{} Failed to write iptables rules: {}", "error:".red(), e);
+            1
         }
     }
 }
 
-/// Applies iptables rules from the system configuration file.
+/// Applies the configured iptables rules to enforce network security.
 ///
-/// This function uses `iptables-restore` to immediately apply the rules stored in
-/// `/etc/iptables/iptables.rules` by executing a bash command with sudo privileges.
-/// It logs success or failure with appropriate messages.
+/// This function uses `iptables-restore` to apply the rules stored in `/etc/iptables/iptables.rules`,
+/// activating the firewall configuration set up by `iptables_file_setup`. It executes the command
+/// with `sudo` to ensure proper permissions and is part of the "gnulinwiz" project’s post-installation
+/// setup to secure the system’s network. The function logs success or failure with descriptive messages.
 ///
 /// # Returns
-/// * `0` if the iptables rules are applied successfully.
-/// * `1` if applying the rules fails.
+/// * `0` - The iptables rules were successfully applied.
+/// * `1` - An error occurred, such as a missing rules file or `sudo` command failure.
 ///
-/// # Examples
+/// # Errors
+/// Returns `1` if:
+/// - The rules file `/etc/iptables/iptables.rules` does not exist or is invalid.
+/// - The `iptables-restore` command fails due to permissions or syntax errors in the rules.
+///
+/// # Example
 /// ```
+/// use gnulinwiz::functionality::iptables::iptables_rules_setup;
 /// let result = iptables_rules_setup();
-/// assert_eq!(result, 0);
+/// assert_eq!(result, 0); // Rules applied successfully
 /// ```
+///
+/// # See Also
+/// - `commands::run_sudo_command`: Used to execute `iptables-restore` with `sudo`.
+/// - `iptables_file_setup`: Sets up the rules file before application.
 pub fn iptables_rules_setup() -> i8 {
-    let rules_path = String::from("/etc/iptables/iptables.rules");
-    let command = "bash";
-    let args = &["-c", &format!("iptables-restore < {}", rules_path)];
+    let rules_path = "/etc/iptables/iptables.rules";
 
-    match run_sudo_command(command, args) {
+    match run_sudo_command(
+        "bash",
+        &["-c", &format!("iptables-restore < {}", rules_path)],
+    ) {
         Ok(_) => {
-            println!("iptables.rules {}", "set successfully".green());
-            return 0;
+            println!("iptables rules {}.", "applied".green());
+            0
         }
         Err(e) => {
-            eprintln!("error applying iptables rules: {}", e);
-            return 1;
+            eprintln!("{} Failed to apply iptables rules: {}", "error:".red(), e);
+            1
         }
     }
 }

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["validate_task_status"]};
+window.SIDEBAR_ITEMS = {"fn":["validate_task_statuses"],"struct":["TaskResult"]};

@@ -22,126 +22,155 @@ use super::commands::run_sudo_command;
 use colored::Colorize;
 use std::path::Path;
 
-/// Copies a configuration file to the user's home directory.
+/// Copies a configuration file to the user's home directory, ensuring idempotent operation.
 ///
-/// This function copies a specified configuration file to the user's home directory,
-/// preserving the original filename. It is used to set up user-specific configurations
-/// such as `.zshrc` or `.vimrc`.
+/// This function copies a specified configuration file (e.g., `.zshrc`, `.vimrc`) to the user’s
+/// home directory, creating a consistent user environment in the "gnulinwiz" project. It checks
+/// for existing files at the destination and prompts the user to overwrite them, preventing
+/// unintended modifications. The function is used for setting up user-specific configurations
+/// like Zsh and Vim settings during post-installation setup.
 ///
 /// # Arguments
-/// * `config_path` - Path to the source configuration file.
-/// * `home_dir` - Path to the user's home directory.
-/// * `cfg_name` - Descriptive name of the configuration (e.g., "zsh", "vim") for logging purposes.
+/// * `config_path` - The path to the source configuration file (e.g., `"../configs/.zshrc"`).
+/// * `home_dir` - The user’s home directory where the file will be copied (e.g., `"/home/user"`).
+/// * `cfg_name` - A descriptive name for the configuration (e.g., `"zsh"`, `"vim"`) used in logs.
 ///
 /// # Returns
-/// * `0` if the configuration file is copied successfully.
-/// * `1` if an error occurs, such as an invalid path or file copy failure.
+/// * `0` - The configuration was successfully copied or skipped (user chose not to overwrite).
+/// * `1` - An error occurred, such as an invalid source path or file copy failure.
 ///
-/// # Examples
+/// # Errors
+/// Returns `1` if:
+/// - The source path is invalid or does not contain a file name.
+/// - The file copy operation fails due to permissions or other I/O errors.
+///
+/// # Example
 /// ```
+/// use gnulinwiz::functionality::configs::user_config_setup;
 /// let result = user_config_setup("../configs/.zshrc", "/home/user", "zsh");
-/// assert_eq!(result, 0);
+/// assert_eq!(result, 0); // Configuration copied or skipped successfully
 /// ```
+///
+/// # See Also
+/// - `prog_fun::read_input`: Used to prompt the user for overwrite confirmation.
+/// - `setup_root_config`: For configuring the root user’s environment.
 pub fn user_config_setup(config_path: &str, home_dir: &str, cfg_name: &str) -> i8 {
-    let source = Path::new(&config_path);
-    let filename = source.file_name();
-
-    match filename {
-        Some(name) => {
-            let destination_path = Path::new(&home_dir).join(name);
-            match std::fs::copy(config_path, &destination_path) {
-                Ok(_) => {
-                    println!("{} {}", cfg_name, "custom config was installed".green());
-                    return 0;
-                }
-                Err(e) => {
-                    eprintln!(
-                        "error: custom config failed to install {} to '{}': {}",
-                        cfg_name,
-                        destination_path.display(),
-                        e
-                    );
-                    return 1;
-                }
-            }
-        }
+    let source = Path::new(config_path);
+    let filename = match source.file_name() {
+        Some(name) => name,
         None => {
-            eprintln!(
-                "error: could not determine filename from path: {}",
-                config_path.red()
-            );
+            eprintln!("{} Invalid path: {}", "error:".red(), config_path);
             return 1;
         }
-    }
-}
+    };
 
-// Helper function to copy a file or directory as root using `cp -r` via sudo.
-// Takes source path, destination path, and a description for logging.
-// Returns 0 on success, 1 on failure.
-fn copy_item_as_root(src: &str, dest: &str, description: &str) -> i8 {
-    let args = &["-r", src, dest];
-
-    match run_sudo_command("cp", args) {
-        Ok(_) => {
-            println!("{} {}", description, "created configuration".green());
+    let dest_path = Path::new(home_dir).join(filename);
+    if dest_path.exists() {
+        println!(
+            "{} exists. {} (y/n)",
+            dest_path.display(),
+            "Overwrite?".yellow()
+        );
+        let input = super::prog_fun::read_input().trim().to_lowercase();
+        if input != "y" {
+            println!("{} Skipped.", cfg_name.green());
             return 0;
         }
+    }
+
+    match std::fs::copy(config_path, &dest_path) {
+        Ok(_) => {
+            println!("{} {}.", cfg_name, "installed".green());
+            0
+        }
         Err(e) => {
-            eprintln!(
-                "{} failed to copy '{}' to '{}': {}",
-                "error:".red(),
-                src,
-                dest,
-                e.red()
-            );
-            return 1;
+            eprintln!("{} Failed to install {}: {}", "error:".red(), cfg_name, e);
+            1
         }
     }
 }
 
-/// Configures the root user's environment by copying configuration files from the user's home directory.
+// Copies a file or directory to a system location using root privileges.
+//
+// This private helper function executes a `cp` command with `sudo` to copy a file or directory
+// from a source to a destination, typically for root-owned locations like `/root`. It is used
+// by `setup_root_config` to set up root user configurations. The function logs success or failure
+// with descriptive messages.
+//
+// Arguments:
+// * `src` - The source path of the file or directory.
+// * `dest` - The destination path for the copy.
+// * `description` - A descriptive name for the item being copied (e.g., "Root Zsh config").
+//
+// Returns:
+// * `0` - The copy operation succeeded.
+// * `1` - The copy operation failed, with an error logged to stderr.
+fn copy_item_as_root(src: &str, dest: &str, description: &str) -> i8 {
+    match run_sudo_command("cp", &["-r", src, dest]) {
+        Ok(_) => {
+            println!("{} {}.", description, "created".green());
+            0
+        }
+        Err(e) => {
+            eprintln!("{} Failed to copy {}: {}", "error:".red(), description, e);
+            1
+        }
+    }
+}
+
+/// Configures the root user’s environment by copying user configurations to root directories.
 ///
-/// This function copies `.oh-my-zsh`, `.zshrc`, and `.vimrc` from the specified user home directory
-/// to the root user's directory (`/root`) using `cp -r` with sudo privileges. It ensures the root
-/// user has consistent shell and editor configurations.
+/// This function copies essential configuration files and directories (e.g., `.oh-my-zsh`, `.zshrc`,
+/// `.vimrc`) from the user’s home directory to the root user’s environment (e.g., `/root`). It uses
+/// `sudo` to perform the copy operations, ensuring root-owned files are updated correctly. The function
+/// is part of the "gnulinwiz" project’s post-installation setup to provide a consistent root environment.
 ///
 /// # Arguments
-/// * `home_dir` - Path to the user's home directory containing the source configuration files.
+/// * `home_dir` - The user’s home directory containing the source configurations (e.g., `"/home/user"`).
 ///
 /// # Returns
-/// * `0` if all configurations are copied successfully.
-/// * `1` if any copy operation fails.
+/// * `0` - All configurations were successfully copied.
+/// * `1` - An error occurred during one or more copy operations.
 ///
-/// # Examples
+/// # Errors
+/// Returns `1` if any copy operation fails due to:
+/// - Insufficient permissions or invalid paths.
+/// - Errors in the `sudo` command execution.
+///
+/// # Example
 /// ```
+/// use gnulinwiz::functionality::configs::setup_root_config;
 /// let result = setup_root_config("/home/user");
-/// assert_eq!(result, 0);
+/// assert_eq!(result, 0); // Root configurations copied successfully
 /// ```
+///
+/// # See Also
+/// - `commands::run_sudo_command`: Used for executing copy operations with root privileges.
+/// - `user_config_setup`: For setting up user-specific configurations.
 pub fn setup_root_config(home_dir: &str) -> i8 {
-    let items_to_copy = [
+    let items = [
         (
             format!("{}/.oh-my-zsh", home_dir),
-            "/root/.oh-my-zsh".to_string(),
             "/root/.oh-my-zsh",
+            "Root Oh My Zsh",
         ),
         (
             format!("{}/.zshrc", home_dir),
-            "/root/.zshrc".to_string(),
             "/root/.zshrc",
+            "Root Zsh config",
         ),
         (
             format!("{}/.vimrc", home_dir),
-            "/root/.vimrc".to_string(),
             "/root/.vimrc",
+            "Root Vim config",
         ),
     ];
 
-    for (src, dest, desc) in &items_to_copy {
-        let status = copy_item_as_root(src.as_str(), dest.as_str(), desc);
-        if status != 0 {
+    for (src, dest, desc) in items.iter() {
+        if copy_item_as_root(src, dest, desc) != 0 {
             return 1;
         }
     }
 
-    return 0;
+    0
 }

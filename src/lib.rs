@@ -18,7 +18,19 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/// Core functionality for the GNU/Linux Config Wizard, providing tools for system configuration.
+/// The core module for the GNU/Linux Config Wizard, containing utilities for system configuration.
+///
+/// This module organizes functionality into submodules for tasks such as software installation,
+/// shell configuration, iptables setup, and ZRAM swap management. Each submodule provides
+/// specific tools to automate post-installation setup for GNU/Linux systems, ensuring a
+/// streamlined and user-friendly experience.
+///
+/// # Example
+/// ```
+/// use gnulinwiz::functionality::zram::zram_swap_setup;
+/// let result = zram_swap_setup();
+/// assert_eq!(result, 0); // Successful ZRAM configuration
+/// ```
 pub mod functionality;
 
 use colored::Colorize;
@@ -27,102 +39,195 @@ use functionality::{
     env::get_env_var,
     iptables::{iptables_file_setup, iptables_rules_setup},
     prog_fun::{
-        check_sw_install_type, default_sw_package, handle_error, print_license_info,
-        print_setup_status_success, set_sw_list, validate_root_priviliges,
+        check_sw_install_type, default_sw_package, print_license_info, print_setup_status_success,
+        set_sw_list, validate_root_priviliges,
     },
     shell::{
         change_def_shell, install_omz, install_zsh_autosuggestions, install_zsh_syntax_highlighting,
     },
     software::software_setup,
-    task::validate_task_status,
+    task::{validate_task_statuses, TaskResult},
     user_cfg::UserCfg,
     zram::zram_swap_setup,
 };
 
-/// Performs a default post-installation setup for a GNU/Linux system.
+/// Orchestrates a default post-installation setup for a GNU/Linux system.
 ///
-/// This function orchestrates the configuration of essential system components, including:
-/// - Displaying license information
-/// - Validating root privileges
-/// - Configuring user and root environment settings
-/// - Setting up the iptables firewall
-/// - Installing specified or default software packages
-/// - Configuring the Zsh shell with plugins
-/// - Setting up Vim and Zsh configurations for both user and root
-/// - Enabling ZRAM swap
+/// This function automates the configuration of essential system components, including:
+/// - Displaying the GNU General Public License information.
+/// - Validating root privileges (with an option to allow root execution).
+/// - Setting up user and root environments.
+/// - Configuring iptables firewall rules.
+/// - Installing software (default or user-specified packages).
+/// - Setting Zsh as the default shell with plugins (Oh My Zsh, autosuggestions, syntax highlighting).
+/// - Installing Vim configuration.
+/// - Configuring ZRAM swap for improved performance.
 ///
-/// The function validates each task and halts on errors, ensuring a robust setup process.
-/// On successful completion, it prints a success message.
+/// Tasks are executed sequentially, with results collected for comprehensive error reporting.
+/// The setup is designed to be idempotent where possible, checking for existing configurations
+/// to avoid redundant operations.
 ///
-/// # Panics
-/// Panics if critical environment variables (`USER` or `HOME`) are not set, or if any setup task fails.
-pub fn gnu_linux_default_setup() {
-    // prints license info
+/// # Arguments
+/// * `allow_root` - Enables execution with root privileges if `true`. If `false`, the program
+///   exits if run as root unless explicitly allowed.
+///
+/// # Returns
+/// * `Ok(())` - All tasks completed successfully.
+/// * `Err(String)` - A summary of failed tasks, with details logged to stderr.
+///
+/// # Errors
+/// Returns an error if:
+/// - Environment variables (`USER`, `HOME`) are unset.
+/// - Any task (e.g., software installation, iptables setup) fails.
+/// - Root privileges are required but not allowed.
+///
+/// # Example
+/// ```
+/// let result = gnulinwiz::gnu_linux_default_setup(true);
+/// match result {
+///     Ok(()) => println!("Setup completed successfully!"),
+///     Err(e) => eprintln!("Setup failed: {}", e),
+/// }
+/// ```
+pub fn gnu_linux_default_setup(allow_root: bool) -> Result<(), String> {
+    let mut tasks = Vec::new();
+
+    // Print license info
     print_license_info();
 
-    // validates root priviliges
-    validate_root_priviliges();
+    tasks.push(TaskResult {
+        status: 0,
+        message: "License info displayed".to_string(),
+    });
 
-    // sets up gnu/linux username and home path
+    // Validate root privileges
+    let is_root = validate_root_priviliges(allow_root);
+
+    tasks.push(TaskResult {
+        status: if is_root || !allow_root { 0 } else { 1 },
+        message: "Root privilege validation".to_string(),
+    });
+
+    // Set up user configuration
     let mut user_cfg = UserCfg::new();
-    let user_name_option = get_env_var("USER");
-    let user_name = match user_name_option {
-        Some(name) => name,
-        None => {
-            handle_error("setup cannot continue without the USER environment variable.");
-        }
+    let user_name = match get_env_var("USER") {
+        Ok(name) => name,
+        Err(e) => return Err(e),
     };
-    let home_dir_option = get_env_var("HOME");
-    let home_dir = match home_dir_option {
-        Some(dir) => dir, // Got the String, unwrap it
-        None => {
-            handle_error("setup cannot continue without the USER environment variable.");
-        }
+    let home_dir = match get_env_var("HOME") {
+        Ok(dir) => dir,
+        Err(e) => return Err(e),
     };
-    user_cfg.set_name(user_name.as_str());
-    user_cfg.set_home(home_dir.as_str());
+    user_cfg.set_name(&user_name)?;
+    user_cfg.set_home(&home_dir)?;
     println!("username: {}", user_cfg.get_name().green());
     println!("home location: {}", user_cfg.get_home().green());
 
-    // sets up iptables firewall and initializes rules
-    validate_task_status(iptables_file_setup());
-    validate_task_status(iptables_rules_setup());
-
-    // sets up a list of sw to download
-    validate_task_status(if check_sw_install_type() {
-        let package_strings: Vec<String> = set_sw_list();
-        let package_slices: Vec<&str> = package_strings.iter().map(|s| s.as_str()).collect();
-        software_setup(&package_slices)
-    } else {
-        software_setup(default_sw_package())
+    tasks.push(TaskResult {
+        status: 0,
+        message: "User configuration set".to_string(),
     });
 
-    validate_task_status(change_def_shell(user_cfg.get_name()));
-    validate_task_status(change_def_shell("root"));
+    // Detect distribution
+    let distro = detect_distro().unwrap_or_else(|| "unknown".to_string());
 
-    // sets up zsh shell
-    validate_task_status(install_omz());
-    validate_task_status(install_zsh_autosuggestions(user_cfg.get_home()));
-    validate_task_status(install_zsh_syntax_highlighting(user_cfg.get_home()));
-    validate_task_status(user_config_setup(
-        "../configs/.zshrc",
-        user_cfg.get_home(),
-        "zsh",
-    ));
+    // Set up iptables
+    tasks.push(TaskResult {
+        status: iptables_file_setup(),
+        message: "iptables file setup".to_string(),
+    });
 
-    // sets up vim configuration
-    validate_task_status(user_config_setup(
-        "../configs/.vimrc",
-        user_cfg.get_home(),
-        "vim",
-    ));
+    tasks.push(TaskResult {
+        status: iptables_rules_setup(),
+        message: "iptables rules setup".to_string(),
+    });
 
-    // sets up zsh, its plugins, .vimrc and .zshrc for root user
-    validate_task_status(setup_root_config(user_cfg.get_home()));
+    // Install software
+    let sw_result = if check_sw_install_type() {
+        let package_strings = set_sw_list();
+        let package_slices: Vec<&str> = package_strings.iter().map(|s| s.as_str()).collect();
+        software_setup(&package_slices, &distro)
+    } else {
+        software_setup(default_sw_package(), &distro)
+    };
 
-    // sets up zram swap
-    validate_task_status(zram_swap_setup());
+    tasks.push(TaskResult {
+        status: sw_result,
+        message: "Software installation".to_string(),
+    });
 
-    // prints status if no errors occured
-    print_setup_status_success();
+    // Configure shells
+    tasks.push(TaskResult {
+        status: change_def_shell(user_cfg.get_name()),
+        message: format!("Shell change for {}", user_cfg.get_name()),
+    });
+
+    tasks.push(TaskResult {
+        status: change_def_shell("root"),
+        message: "Shell change for root".to_string(),
+    });
+
+    // Set up Zsh
+    tasks.push(TaskResult {
+        status: install_omz(),
+        message: "Oh My Zsh installation".to_string(),
+    });
+
+    tasks.push(TaskResult {
+        status: install_zsh_autosuggestions(user_cfg.get_home()),
+        message: "Zsh autosuggestions installation".to_string(),
+    });
+
+    tasks.push(TaskResult {
+        status: install_zsh_syntax_highlighting(user_cfg.get_home()),
+        message: "Zsh syntax highlighting installation".to_string(),
+    });
+
+    tasks.push(TaskResult {
+        status: user_config_setup("../configs/.zshrc", user_cfg.get_home(), "zsh"),
+        message: "Zsh user configuration".to_string(),
+    });
+
+    // Set up Vim
+    tasks.push(TaskResult {
+        status: user_config_setup("../configs/.vimrc", user_cfg.get_home(), "vim"),
+        message: "Vim user configuration".to_string(),
+    });
+
+    // Configure root
+    tasks.push(TaskResult {
+        status: setup_root_config(user_cfg.get_home()),
+        message: "Root configuration".to_string(),
+    });
+
+    // Set up ZRAM
+    tasks.push(TaskResult {
+        status: zram_swap_setup(),
+        message: "ZRAM swap setup".to_string(),
+    });
+
+    // Validate all tasks
+    if validate_task_statuses(tasks) {
+        print_setup_status_success();
+        Ok(())
+    } else {
+        Err("Setup failed. Check logs for details.".to_string())
+    }
+}
+
+// Detects the Linux distribution by checking for specific release files.
+//
+// Returns `Some(String)` with the distribution name (e.g., "arch", "debian", "fedora")
+// if detected, or `None` if the distribution is unknown. This function is used to
+// tailor software installation commands to the detected distribution.
+fn detect_distro() -> Option<String> {
+    if std::path::Path::new("/etc/arch-release").exists() {
+        Some("arch".to_string())
+    } else if std::path::Path::new("/etc/debian_version").exists() {
+        Some("debian".to_string())
+    } else if std::path::Path::new("/etc/fedora-release").exists() {
+        Some("fedora".to_string())
+    } else {
+        None
+    }
 }

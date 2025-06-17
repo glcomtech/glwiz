@@ -21,40 +21,60 @@
 use super::commands::run_sudo_command;
 use colored::Colorize;
 
-/// Configures ZRAM swap by copying the ZRAM generator configuration file.
+/// Configures ZRAM swap to optimize system memory usage.
 ///
-/// Copies the ZRAM configuration file from `../configs/zram-generator.conf` to
-/// `/etc/systemd/zram-generator.conf` using `cp` with sudo privileges. This sets up
-/// compressed RAM-based swap to improve system performance. Logs success or failure
-/// with appropriate messages.
+/// This function sets up ZRAM (compressed RAM-based swap) by copying a predefined configuration
+/// file from `../configs/zram-generator.conf` to `/etc/systemd/zram-generator.conf`. It is part
+/// of the "gnulinwiz" project’s post-installation setup to enhance system performance by providing
+/// fast, compressed swap space. The function checks for the source file’s existence and prompts
+/// the user to overwrite the destination if it exists, ensuring idempotent operation. It uses
+/// `sudo` to write to the system directory, guaranteeing proper permissions.
 ///
 /// # Returns
-/// * `0` if the configuration file is copied successfully.
-/// * `1` if the copy operation fails (e.g., due to permission issues or missing source file).
+/// * `0` - The ZRAM configuration was successfully applied or skipped (user chose not to overwrite).
+/// * `1` - An error occurred, such as a missing source file or failed copy operation.
 ///
-/// # Examples
+/// # Errors
+/// Returns `1` if:
+/// - The source file `../configs/zram-generator.conf` does not exist.
+/// - The copy operation fails due to permissions or `sudo` issues.
+///
+/// # Example
 /// ```
+/// use gnulinwiz::functionality::zram::zram_swap_setup;
 /// let result = zram_swap_setup();
-/// assert_eq!(result, 0);
+/// assert_eq!(result, 0); // ZRAM configured or skipped successfully
 /// ```
+///
+/// # See Also
+/// - `commands::run_sudo_command`: Used to copy the configuration file with `sudo`.
+/// - `prog_fun::read_input`: Used to prompt for overwrite confirmation.
 pub fn zram_swap_setup() -> i8 {
-    let source_config_path = "../configs/zram-generator.conf";
-    let destination_path = "/etc/systemd/zram-generator.conf";
+    let src = "../configs/zram-generator.conf";
+    let dest = "/etc/systemd/zram-generator.conf";
 
-    let result = run_sudo_command("cp", &[source_config_path, destination_path]);
+    if !std::path::Path::new(src).exists() {
+        eprintln!("{} Source file {} not found.", "error:".red(), src);
+        return 1;
+    }
 
-    match result {
-        Ok(()) => {
-            println!("zram {}", "swap configuration copied successfully.".green());
+    if std::path::Path::new(dest).exists() {
+        println!("{} exists. Overwrite? (y/n)", dest);
+        let input = super::prog_fun::read_input().trim().to_lowercase();
+        if input != "y" {
+            println!("ZRAM config {}.", "skipped".green());
             return 0;
         }
+    }
+
+    match run_sudo_command("cp", &[src, dest]) {
+        Ok(_) => {
+            println!("ZRAM {}.", "configured".green());
+            0
+        }
         Err(e) => {
-            eprintln!(
-                "{} failed to copy zram-generator.conf: {}",
-                "error:".red(),
-                e.red()
-            );
-            return 1;
+            eprintln!("{} Failed to configure ZRAM: {}", "error:".red(), e);
+            1
         }
     }
 }
