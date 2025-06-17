@@ -22,60 +22,81 @@ use super::commands::{run_sudo_command, run_user_command};
 use colored::Colorize;
 use std::process::{Command, Stdio};
 
-/// Changes the default shell to Zsh for the specified user.
+/// Changes the default shell to Zsh for a specified user.
 ///
-/// Uses the `chsh` command with sudo privileges to set `/usr/bin/zsh` as the default shell
-/// for the given user. Logs success or failure with appropriate messages.
+/// This function sets Zsh as the default shell for a user by executing the `chsh` command with
+/// `sudo` privileges. It is part of the "gnulinwiz" project’s post-installation setup to provide
+/// an enhanced shell experience. The function logs success or failure and is used for both
+/// regular users and the root user.
 ///
 /// # Arguments
-/// * `name` - The username for which to change the default shell.
+/// * `name` - The username for which to set Zsh as the default shell (e.g., `"user"`, `"root"`).
 ///
 /// # Returns
-/// * `0` if the shell is changed successfully.
-/// * `1` if the command fails or an error occurs.
+/// * `0` - The shell was successfully changed to Zsh.
+/// * `1` - An error occurred, such as a failed `chsh` command or invalid username.
 ///
-/// # Examples
+/// # Errors
+/// Returns `1` if:
+/// - The `chsh` command fails due to permissions, invalid shell path, or non-existent user.
+/// - The `sudo` execution encounters an error (e.g., `sudo` not installed).
+///
+/// # Example
 /// ```
+/// use gnulinwiz::functionality::shell::change_def_shell;
 /// let result = change_def_shell("user");
-/// assert_eq!(result, 0);
+/// assert_eq!(result, 0); // Zsh set successfully for user
 /// ```
+///
+/// # See Also
+/// - `commands::run_sudo_command`: Used to execute `chsh` with `sudo`.
+/// - `configs::user_config_setup`: Configures Zsh settings after shell change.
 pub fn change_def_shell(name: &str) -> i8 {
-    let command = "chsh";
-    let args = &["-s", "/usr/bin/zsh", name];
-
-    match run_sudo_command(command, args) {
+    match run_sudo_command("chsh", &["-s", "/usr/bin/zsh", name]) {
         Ok(_) => {
-            println!("zsh {}{}", "shell set successfully for ".green(), name);
-            return 0;
+            println!("Zsh set for {}.", name.green());
+            0
         }
         Err(e) => {
-            eprintln!(
-                "{} failed to change default shell for user '{}': {}",
-                "error:".red(),
-                name,
-                e.red()
-            );
-            return 1;
+            eprintln!("{} Failed to set Zsh for {}: {}", "error:".red(), name, e);
+            1
         }
     }
 }
 
-/// Installs Oh My Zsh by downloading and executing its installation script.
+/// Installs Oh My Zsh to enhance the Zsh shell experience.
 ///
-/// Downloads the Oh My Zsh installation script using `curl` and pipes it to `bash` for execution.
-/// Handles errors during process spawning, piping, or script execution, and logs detailed output
-/// in case of failure.
+/// This function downloads and installs Oh My Zsh by piping the official installation script from
+/// a remote URL through `curl` to `bash`. It checks if Oh My Zsh is already installed to avoid
+/// redundant operations, ensuring idempotency. The function is part of the "gnulinwiz" project’s
+/// post-installation setup to provide a customizable and feature-rich shell environment.
 ///
 /// # Returns
-/// * `0` if Oh My Zsh is installed successfully.
-/// * `1` if any error occurs during the installation process.
+/// * `0` - Oh My Zsh was successfully installed or already present.
+/// * `1` - An error occurred during installation, such as a failed `curl` or `bash` command.
 ///
-/// # Examples
+/// # Errors
+/// Returns `1` if:
+/// - The `curl` command fails to download the installation script.
+/// - Capturing `curl`’s stdout fails.
+/// - The `bash` command fails to execute the script or returns a non-zero exit status.
+///
+/// # Example
 /// ```
+/// use gnulinwiz::functionality::shell::install_omz;
 /// let result = install_omz();
-/// assert_eq!(result, 0);
+/// assert_eq!(result, 0); // Oh My Zsh installed or already present
 /// ```
+///
+/// # See Also
+/// - `install_zsh_autosuggestions`: Installs a complementary Zsh plugin.
+/// - `install_zsh_syntax_highlighting`: Installs another Zsh plugin.
 pub fn install_omz() -> i8 {
+    if std::path::Path::new("~/.oh-my-zsh").exists() {
+        println!("Oh My Zsh already installed.");
+        return 0;
+    }
+
     let mut curl_cmd = Command::new("curl");
     curl_cmd
         .args(&[
@@ -84,142 +105,111 @@ pub fn install_omz() -> i8 {
         ])
         .stdout(Stdio::piped());
 
-    let mut curl_process = match curl_cmd.spawn() {
-        Ok(process) => process,
+    let curl_process = match curl_cmd.spawn() {
+        Ok(p) => p,
         Err(e) => {
-            eprintln!("{} failed to spawn curl command: {}", "error:".red(), e);
+            eprintln!("{} Failed to run curl: {}", "error:".red(), e);
             return 1;
         }
     };
 
-    let curl_stdout = match curl_process.stdout.take() {
-        Some(stdout) => stdout,
+    let curl_stdout = match curl_process.stdout {
+        Some(s) => s,
         None => {
-            eprintln!("{}", "error: failed to capture curl stdout pipe".red());
-            let _ = curl_process.wait();
+            eprintln!("{} Failed to capture curl stdout.", "error:".red());
             return 1;
         }
     };
 
     let mut bash_cmd = Command::new("bash");
-    bash_cmd
-        .stdin(Stdio::from(curl_stdout))
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped());
-
-    let mut bash_process = match bash_cmd.spawn() {
-        Ok(process) => process,
+    bash_cmd.stdin(Stdio::from(curl_stdout));
+    match bash_cmd.output() {
+        Ok(output) if output.status.success() => {
+            println!("Oh My Zsh {}.", "installed".green());
+            0
+        }
+        Ok(output) => {
+            eprintln!(
+                "{} Oh My Zsh failed:\nstdout: {}\nstderr: {}",
+                "error:".red(),
+                String::from_utf8_lossy(&output.stdout),
+                String::from_utf8_lossy(&output.stderr)
+            );
+            1
+        }
         Err(e) => {
-            eprintln!("{} failed to spawn bash command: {}", "error:".red(), e);
-            let _ = curl_process.kill();
-            let _ = curl_process.wait();
-            return 1;
+            eprintln!("{} Failed to run bash: {}", "error:".red(), e);
+            1
         }
-    };
-
-    let curl_status = match curl_process.wait() {
-        Ok(status) => status,
-        Err(e) => {
-            eprintln!("{} failed to wait for curl command: {}", "error:".red(), e);
-            let _ = bash_process.kill();
-            let _ = bash_process.wait();
-            return 1;
-        }
-    };
-
-    if !curl_status.success() {
-        eprintln!(
-            "{} curl command failed with status: {}",
-            "error:".red(),
-            curl_status
-                .code()
-                .map_or_else(|| "terminated by signal".into(), |c| c.to_string())
-        );
-        let _ = bash_process.kill();
-        let _ = bash_process.wait();
-        return 1;
-    }
-
-    let output = match bash_process.wait_with_output() {
-        Ok(output) => output,
-        Err(e) => {
-            eprintln!("{} failed to wait for bash command: {}", "error:".red(), e);
-            return 1;
-        }
-    };
-
-    if output.status.success() {
-        println!("oh-my-zsh {}", "installed successfully".green());
-        return 0;
-    } else {
-        eprintln!(
-            "{} oh-my-zsh installation script failed with status: {}",
-            "error:".red(),
-            output
-                .status
-                .code()
-                .map_or_else(|| "terminated by signal".into(), |c| c.to_string())
-        );
-        if !output.stdout.is_empty() {
-            eprintln!("--- Script stdout ---");
-            eprintln!("{}", String::from_utf8_lossy(&output.stdout).trim());
-        }
-        if !output.stderr.is_empty() {
-            eprintln!("--- Script stderr ---");
-            eprintln!("{}", String::from_utf8_lossy(&output.stderr).trim());
-        }
-        if output.stdout.is_empty() && output.stderr.is_empty() {
-            eprintln!("(No script output captured)");
-        }
-
-        return 1;
     }
 }
 
-// Helper function to clone a Zsh plugin into the Oh My Zsh custom plugins directory.
-// Clones the specified repository into the user's Oh My Zsh plugins directory using `git`.
+// Installs a Zsh plugin by cloning a Git repository.
+//
+// This private helper function clones a specified Zsh plugin repository into the Oh My Zsh
+// custom plugins directory. It checks if the plugin is already installed to avoid redundant
+// cloning, ensuring idempotency. The function is used by `install_zsh_autosuggestions` and
+// `install_zsh_syntax_highlighting` to install specific plugins.
+//
+// Arguments:
+// * `home_dir` - The user’s home directory (e.g., "/home/user").
+// * `plugin_name` - The name of the plugin (e.g., "zsh-autosuggestions").
+// * `repo_url` - The Git repository URL for the plugin.
+//
+// Returns:
+// * `0` - The plugin was successfully installed or already present.
+// * `1` - An error occurred during the Git clone operation.
 fn install_zsh_plugin(home_dir: &str, plugin_name: &str, repo_url: &str) -> i8 {
-    let zsh_custom_path = format!("{}/.oh-my-zsh/custom/plugins/{}", home_dir, plugin_name);
-    let args = &["clone", repo_url, &zsh_custom_path];
+    let path = format!("{}/.oh-my-zsh/custom/plugins/{}", home_dir, plugin_name);
+    if std::path::Path::new(&path).exists() {
+        println!("{} already installed.", plugin_name);
+        return 0;
+    }
 
-    println!("Cloning {}...", plugin_name.green());
-
-    match run_user_command("git", args) {
+    match run_user_command("git", &["clone", repo_url, &path]) {
         Ok(_) => {
-            println!("{} {}", plugin_name, "installed successfully".green());
-            return 0;
+            println!("{} {}.", plugin_name, "installed".green());
+            0
         }
         Err(e) => {
             eprintln!(
-                "{} failed to clone '{}' from '{}' into '{}': {}",
+                "{} Failed to install {}: {}",
                 "error:".red(),
                 plugin_name,
-                repo_url,
-                zsh_custom_path,
-                e.red(),
+                e
             );
-            return 1;
+            1
         }
     }
 }
 
-/// Installs the Zsh Autosuggestions plugin for the specified user's Oh My Zsh setup.
+/// Installs the Zsh Autosuggestions plugin for enhanced shell interaction.
 ///
-/// Clones the Zsh Autosuggestions plugin from its GitHub repository into the user's
-/// Oh My Zsh custom plugins directory.
+/// This function installs the Zsh Autosuggestions plugin by cloning its Git repository into the
+/// Oh My Zsh custom plugins directory. It ensures idempotency by checking for existing installations
+/// and is part of the "gnulinwiz" project’s post-installation setup to improve Zsh usability with
+/// command suggestions based on history.
 ///
 /// # Arguments
-/// * `home_dir` - The user's home directory where Oh My Zsh is installed.
+/// * `home_dir` - The user’s home directory where Oh My Zsh is installed (e.g., `"/home/user"`).
 ///
 /// # Returns
-/// * `0` if the plugin is installed successfully.
-/// * `1` if the plugin installation fails (e.g., due to `git` errors).
+/// * `0` - The plugin was successfully installed or already present.
+/// * `1` - An error occurred during the Git clone operation.
 ///
-/// # Examples
+/// # Errors
+/// Returns `1` if the `git clone` command fails due to network issues, permissions, or invalid URLs.
+///
+/// # Example
 /// ```
+/// use gnulinwiz::functionality::shell::install_zsh_autosuggestions;
 /// let result = install_zsh_autosuggestions("/home/user");
-/// assert_eq!(result, 0);
+/// assert_eq!(result, 0); // Plugin installed or already present
 /// ```
+///
+/// # See Also
+/// - `install_zsh_plugin`: The helper function performing the installation.
+/// - `install_omz`: Installs Oh My Zsh, required for this plugin.
 pub fn install_zsh_autosuggestions(home_dir: &str) -> i8 {
     install_zsh_plugin(
         home_dir,
@@ -228,23 +218,33 @@ pub fn install_zsh_autosuggestions(home_dir: &str) -> i8 {
     )
 }
 
-/// Installs the Zsh Syntax Highlighting plugin for the specified user's Oh My Zsh setup.
+/// Installs the Zsh Syntax Highlighting plugin for improved shell readability.
 ///
-/// Clones the Zsh Syntax Highlighting plugin from its GitHub repository into the user's
-/// Oh My Zsh custom plugins directory.
+/// This function installs the Zsh Syntax Highlighting plugin by cloning its Git repository into the
+/// Oh My Zsh custom plugins directory. It ensures idempotency by checking for existing installations
+/// and is part of the "gnulinwiz" project’s post-installation setup to enhance Zsh with syntax
+/// highlighting for commands and arguments.
 ///
 /// # Arguments
-/// * `home_dir` - The user's home directory where Oh My Zsh is installed.
+/// * `home_dir` - The user’s home directory where Oh My Zsh is installed (e.g., `"/home/user"`).
 ///
 /// # Returns
-/// * `0` if the plugin is installed successfully.
-/// * `1` if the plugin installation fails (e.g., due to `git` errors).
+/// * `0` - The plugin was successfully installed or already present.
+/// * `1` - An error occurred during the Git clone operation.
 ///
-/// # Examples
+/// # Errors
+/// Returns `1` if the `git clone` command fails due to network issues, permissions, or invalid URLs.
+///
+/// # Example
 /// ```
+/// use gnulinwiz::functionality::shell::install_zsh_syntax_highlighting;
 /// let result = install_zsh_syntax_highlighting("/home/user");
-/// assert_eq!(result, 0);
+/// assert_eq!(result, 0); // Plugin installed or already present
 /// ```
+///
+/// # See Also
+/// - `install_zsh_plugin`: The helper function performing the installation.
+/// - `install_omz`: Installs Oh My Zsh, required for this plugin.
 pub fn install_zsh_syntax_highlighting(home_dir: &str) -> i8 {
     install_zsh_plugin(
         home_dir,

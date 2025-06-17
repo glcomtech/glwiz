@@ -19,171 +19,253 @@
  */
 
 use colored::Colorize;
-use std::{io::stdin, process::exit};
+use std::io::{self, Write};
+use std::process::exit;
 
-/// Returns the default list of software packages for installation.
+/// Returns a default list of software packages for installation.
 ///
-/// Provides a static list of commonly used software packages to be installed
-/// during the GNU/Linux configuration process.
+/// This function provides a predefined list of commonly used software packages (e.g., Firefox, Vim)
+/// for the "gnulinwiz" project’s post-installation setup. It is used when the user opts for the default
+/// software installation instead of a custom list. The returned slice is static to ensure consistent
+/// access across the setup process.
 ///
 /// # Returns
-/// A static slice of package names as strings (e.g., "firefox", "zsh").
+/// A static slice of strings containing package names (e.g., `["firefox", "clang", ...]`).
 ///
-/// # Examples
+/// # Example
 /// ```
+/// use gnulinwiz::functionality::prog_fun::default_sw_package;
 /// let packages = default_sw_package();
-/// assert_eq!(packages, &["firefox", "clang", "zsh", "git", "gimp", "mpv", "spectacle", "curl"]);
+/// assert_eq!(packages, &["firefox", "clang", "zsh", "git", "gimp", "mpv", "curl", "vim"]);
 /// ```
+///
+/// # See Also
+/// - `software::software_setup`: Uses this list for default software installation.
+/// - `check_sw_install_type`: Determines whether to use this list or a custom one.
 pub fn default_sw_package() -> &'static [&'static str] {
     &[
-        "firefox",
-        "clang",
-        "zsh",
-        "git",
-        "gimp",
-        "mpv",
-        "spectacle",
-        "curl",
+        "firefox", "clang", "zsh", "git", "gimp", "mpv", "curl", "vim",
     ]
 }
 
-/// Prints the GNU/Linux Config Wizard's license information to the console.
+/// Displays the GNU/Linux Config Wizard’s license information.
 ///
-/// Displays the copyright notice, warranty disclaimer, and redistribution terms,
-/// including a link to the GNU General Public License (GPL) v3.
+/// This function prints the GNU General Public License (GPL) v3 notice for the "gnulinwiz" project,
+/// including a link to the full license text. It is called at the start of the setup process to inform
+/// users of the software’s licensing terms and warranty disclaimer.
+///
+/// # Example
+/// ```
+/// use gnulinwiz::functionality::prog_fun::print_license_info;
+/// print_license_info(); // Outputs GPL v3 notice with license link
+/// ```
+///
+/// # See Also
+/// - `gnu_linux_default_setup`: Calls this function as part of the setup process.
 pub fn print_license_info() {
     let link = "https://www.gnu.org/licenses/gpl-3.0.html".blue();
     println!(
         "gnulinwiz AKA GNU/Linux Config Wizard  Copyright (C) 2025  Andrew Kushyk\n\
-This program comes with ABSOLUTELY NO WARRANTY; for details see {}\n\
-This is free software, and you are welcome to redistribute it\n\
-under certain conditions; for details see {}\n",
+ This program comes with ABSOLUTELY NO WARRANTY; for details see {}\n\
+ This is free software, and you are welcome to redistribute it\n\
+ under certain conditions; for details see {}\n",
         link, link
     );
 }
 
-/// Validates that the program is not running with root privileges.
+/// Validates whether the program is running with root privileges.
 ///
-/// Checks the user ID to ensure the program is not executed as root, as running
-/// with root privileges is considered unsafe and unnecessary. If root privileges
-/// are detected, an error message is printed, and the program exits with status code 1.
+/// This function checks if the program is executed as the root user by inspecting the user ID (UID).
+/// In the "gnulinwiz" project, it ensures safe execution by enforcing root privilege policies. If run
+/// as root without explicit permission, it terminates the program with an error message. Otherwise,
+/// it logs the privilege status and returns the result.
 ///
-/// # Panics
-/// Exits the program with status code 1 if the user ID is 0 (root).
-pub fn validate_root_priviliges() {
+/// # Arguments
+/// * `allow_root` - If `true`, permits execution as root; if `false`, terminates if run as root.
+///
+/// # Returns
+/// * `true` - The program is running as root and `allow_root` is `true`.
+/// * `false` - The program is not running as root.
+///
+/// # Safety
+/// This function uses `unsafe` to call `libc::getuid` for UID checking. It is safe as long as the
+/// underlying system call behaves as expected on Unix-like systems.
+///
+/// # Example
+/// ```
+/// use gnulinwiz::functionality::prog_fun::validate_root_priviliges;
+/// let is_root = validate_root_priviliges(true);
+/// if is_root {
+///     println!("Running as root");
+/// } else {
+///     println!("Running as non-root");
+/// }
+/// ```
+///
+/// # See Also
+/// - `gnu_linux_default_setup`: Uses this function to validate privileges during setup.
+pub fn validate_root_priviliges(allow_root: bool) -> bool {
     if unsafe { libc::getuid() } == 0 {
-        eprintln!("{}", "this program is not recommended to run with root privileges. please run it with your current user.\nexample: ./gnulinwiz".red());
-        // exits if root
-        exit(1);
+        if !allow_root {
+            eprintln!(
+                "{}",
+                "Running as root is not recommended. Use --allow-root to proceed.".red()
+            );
+            exit(1);
+        }
+        println!("{}", "Running with root privileges.".green());
+        true
+    } else {
+        false
     }
 }
 
-/// Prints a green-colored success message to indicate a successful setup.
+/// Prints a success message indicating a completed setup.
 ///
-/// Displays a confirmation message to the user when the GNU/Linux configuration
-/// process completes without errors.
+/// This function displays a confirmation message when the "gnulinwiz" setup process completes
+/// successfully, informing the user that their GNU/Linux system is ready. It uses colored output
+/// for better visibility and is called after all configuration tasks are validated.
+///
+/// # Example
+/// ```
+/// use gnulinwiz::functionality::prog_fun::print_setup_status_success;
+/// print_setup_status_success(); // Outputs "All set! Your GNU/Linux system is ready to use!"
+/// ```
+///
+/// # See Also
+/// - `task::validate_task_statuses`: Determines when to call this function.
+/// - `print_setup_status_failed`: The counterpart for failed setups.
 pub fn print_setup_status_success() {
     println!(
         "{}",
-        "all set! your gnu/linux system is ready to use!".green()
+        "All set! Your GNU/Linux system is ready to use!".green()
     );
 }
 
-/// Prints a red-colored failure message to indicate an unsuccessful setup.
+/// Prints a failure message for setup errors.
 ///
-/// Displays a message prompting the user to fix reported issues and re-run the program
-/// when the configuration process encounters an error.
+/// This function displays an error message when the "gnulinwiz" setup process fails, prompting the
+/// user to check error logs. It uses colored output for emphasis and is called when configuration
+/// tasks do not complete successfully.
+///
+/// # Example
+/// ```
+/// use gnulinwiz::functionality::prog_fun::print_setup_status_failed;
+/// print_setup_status_failed(); // Outputs "Setup failed. Please check error messages and try again."
+/// ```
+///
+/// # See Also
+/// - `task::validate_task_statuses`: Determines when to call this function.
+/// - `print_setup_status_success`: The counterpart for successful setups.
 pub fn print_setup_status_failed() {
     println!(
         "{}",
-        "something went wrong... please fix the reported problems and re-run the program.".red()
+        "Setup failed. Please check error messages and try again.".red()
     );
 }
 
-/// Prompts the user to choose between default or custom software installation lists.
+/// Prompts the user to choose between default or custom software lists.
 ///
-/// Asks the user to input a number: 0 for a custom list or any other number for the default list.
-/// Returns `true` for a custom list and `false` for the default list. Invalid input triggers
-/// an error and program exit via `handle_error`.
+/// This function interactively asks the user to select a software installation mode in the
+/// "gnulinwiz" project. Entering `0` selects a custom list, while any other number selects the
+/// default list. It loops until valid input is provided, ensuring robust user interaction.
 ///
 /// # Returns
-/// * `true` if the user selects a custom list (input is 0).
-/// * `false` if the user selects the default list (input is any non-zero number).
+/// * `true` - The user selected a custom software list.
+/// * `false` - The user selected the default software list.
 ///
-/// # Panics
-/// Exits the program via `handle_error` if the input cannot be parsed as an integer.
-///
-/// # Examples
+/// # Example
 /// ```
-/// // Simulating user input of "0" would return true
-/// // Simulating user input of "1" would return false
+/// use gnulinwiz::functionality::prog_fun::check_sw_install_type;
 /// let use_custom = check_sw_install_type();
+/// if use_custom {
+///     println!("User chose custom software list");
+/// } else {
+///     println!("User chose default software list");
+/// }
 /// ```
+///
+/// # See Also
+/// - `read_input`: Used to capture user input.
+/// - `default_sw_package`: Provides the default list if selected.
+/// - `set_sw_list`: Collects the custom list if selected.
 pub fn check_sw_install_type() -> bool {
-    println!(
-        "{}",
-        "enter any number for the default list of software or 0 to enter a custom list:".yellow()
-    );
+    loop {
+        println!(
+            "{}",
+            "Enter 0 for a custom software list or any other number for default:".yellow()
+        );
 
-    let input = read_input();
-
-    match input.trim().parse::<i8>() {
-        Ok(value) if value == 0 => {
-            println!("{}", "you chose to enter a custom list.\ninstallation takes a few minutes, please wait...".green());
-            return true;
+        let input = read_input();
+        match input.trim().parse::<i8>() {
+            Ok(0) => {
+                println!("{}", "Selected custom software list.".green());
+                return true;
+            }
+            Ok(_) => {
+                println!("{}", "Selected default software list.".green());
+                return false;
+            }
+            Err(_) => println!("{}", "Invalid input. Please enter a number.".red()),
         }
-        Ok(_) => {
-            println!("{}", "you chose to use the default list.\ninstallation takes a few minutes, please wait...".green());
-            return false;
-        }
-        Err(_) => handle_error(
-            "please enter 0 for a custom list or any other number for the default list.",
-        ),
     }
 }
 
-// Reads a line of input from stdin and returns it as a String.
-// Handles read errors by calling handle_error and exiting the program.
-fn read_input() -> String {
-    let mut input = String::new();
-    if let Err(error) = stdin().read_line(&mut input) {
-        handle_error(&format!("{}{}", "error reading input: ".red(), error))
-    }
-    return input;
-}
-
-/// Handles errors by printing a message and exiting the program.
+/// Reads a line of input from standard input (stdin).
 ///
-/// Prints the provided error message in red, followed by a call to `print_setup_status_failed`,
-/// and terminates the program with exit code 1.
-///
-/// # Arguments
-/// * `message` - The error message to display.
-///
-/// # Panics
-/// Always exits the program with status code 1 after printing the error message.
-pub fn handle_error(message: &str) -> ! {
-    eprintln!("{}{}", "error: ".red(), message);
-    print_setup_status_failed();
-    exit(1);
-}
-
-/// Collects a list of software packages from user input for installation.
-///
-/// Prompts the user to enter a space-separated list of software package names,
-/// reads the input, and splits it into a vector of strings. Input errors are handled
-/// via the `read_input` function.
+/// This function captures a single line of user input in the "gnulinwiz" project, used for
+/// interactive tasks like prompting for software lists or overwrite confirmations. It flushes
+/// stdout to ensure prompts are displayed and expects input to be valid UTF-8, panicking on
+/// I/O errors for simplicity.
 ///
 /// # Returns
-/// A vector of owned `String`s containing the package names entered by the user.
+/// A `String` containing the user’s input, including the trailing newline.
 ///
-/// # Examples
+/// # Panics
+/// Panics if reading from stdin fails (e.g., due to I/O errors). This is intentional for simplicity,
+/// as stdin is expected to be available in an interactive context.
+///
+/// # Example
 /// ```
-/// // Simulating user input of "vim nano" would return vec!["vim".to_string(), "nano".to_string()]
+/// use gnulinwiz::functionality::prog_fun::read_input;
+/// let input = read_input();
+/// println!("User entered: {}", input.trim());
+/// ```
+///
+/// # See Also
+/// - `check_sw_install_type`: Uses this function for user input.
+/// - `set_sw_list`: Uses this function to collect custom package names.
+pub fn read_input() -> String {
+    let mut input = String::new();
+    io::stdout().flush().unwrap();
+    io::stdin()
+        .read_line(&mut input)
+        .expect("Failed to read input");
+    input
+}
+
+/// Collects custom software packages from user input.
+///
+/// This function prompts the user to enter a space-separated list of software packages for
+/// installation in the "gnulinwiz" project. It splits the input into individual package names
+/// and returns them as a vector of strings, used when the user selects a custom installation mode.
+///
+/// # Returns
+/// A `Vec<String>` containing the user-specified package names.
+///
+/// # Example
+/// ```
+/// use gnulinwiz::functionality::prog_fun::set_sw_list;
 /// let packages = set_sw_list();
+/// println!("Custom packages: {:?}", packages);
 /// ```
+///
+/// # See Also
+/// - `read_input`: Used to capture the user’s package list.
+/// - `check_sw_install_type`: Determines when to call this function.
+/// - `software::software_setup`: Installs the collected packages.
 pub fn set_sw_list() -> Vec<String> {
-    println!("enter the software packages to install (separated by spaces):");
+    println!("Enter software packages to install (space-separated):");
     let input = read_input();
-    return input.trim().split_whitespace().map(String::from).collect();
+    input.trim().split_whitespace().map(String::from).collect()
 }

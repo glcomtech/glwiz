@@ -18,64 +18,82 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use super::prog_fun::handle_error;
 use colored::Colorize;
 use std::process::Command;
 
-/// Installs software packages using the `pacman` package manager.
+/// Installs software packages using the distribution’s package manager.
 ///
-/// Executes `sudo pacman -Sy` with the provided package names and the `--noconfirm` flag to
-/// install software without prompting for user confirmation. Logs the command being run and
-/// the outcome, including detailed output in case of failure.
+/// This function installs a list of software packages on a GNU/Linux system by selecting the
+/// appropriate package manager based on the detected distribution (Arch, Debian, or Fedora).
+/// It uses `sudo` to execute commands like `pacman`, `apt`, or `dnf` with distribution-specific
+/// arguments for non-interactive installation. The function is a core component of the
+/// "gnulinwiz" project’s post-installation setup, enabling automated software installation
+/// for user-specified or default package lists. It logs the command being run and reports
+/// success or failure with detailed error messages.
 ///
 /// # Arguments
-/// * `packages` - A slice of package names to install (e.g., `["firefox", "zsh"]`).
+/// * `packages` - A slice of package names to install (e.g., `&["firefox", "vim"]`).
+/// * `distro` - The Linux distribution identifier (e.g., `"arch"`, `"debian"`, `"fedora"`).
 ///
 /// # Returns
-/// * `0` if the installation succeeds (including non-fatal warnings handled by `pacman`).
-/// * `1` if the installation fails due to a command execution error or `pacman` reporting an error.
+/// * `0` - All packages were successfully installed.
+/// * `1` - An error occurred, such as an unsupported distribution, failed command, or package installation error.
 ///
-/// # Panics
-/// Exits the program via `handle_error` if the `pacman` command cannot be executed (e.g., due to
-/// permission issues or `pacman` not being found).
+/// # Errors
+/// Returns `1` if:
+/// - The `distro` is not supported (i.e., not `"arch"`, `"debian"`, or `"fedora"`).
+/// - The package manager command fails to execute (e.g., `sudo` or the package manager is not installed).
+/// - The installation command exits with a non-zero status, indicating issues like unavailable packages or network errors.
 ///
-/// # Examples
+/// # Example
 /// ```
-/// let result = software_setup(&["firefox", "zsh"]);
-/// assert_eq!(result, 0);
+/// use gnulinwiz::functionality::software::software_setup;
+/// let packages = &["firefox", "vim"];
+/// let result = software_setup(packages, "debian");
+/// assert_eq!(result, 0); // Packages installed successfully
 /// ```
-pub fn software_setup(packages: &[&str]) -> i8 {
-    let mut command = Command::new("sudo");
-    command
-        .arg("pacman")
-        .arg("-Sy")
-        .args(packages)
-        .arg("--noconfirm");
-
-    println!(
-        "Running command: {}{}{}",
-        "sudo pacman -Sy ".green(),
-        packages.join(" "),
-        " --noconfirm".green()
-    );
-
-    let output = match command.output() {
-        Ok(output) => output,
-        Err(e) => {
-            handle_error(&format!("Failed to execute pacman command: {}", e));
+///
+/// # See Also
+/// - `prog_fun::default_sw_package`: Provides the default package list.
+/// - `prog_fun::set_sw_list`: Collects custom package lists from user input.
+/// - `commands::run_sudo_command`: Used to execute package manager commands with `sudo`.
+pub fn software_setup(packages: &[&str], distro: &str) -> i8 {
+    let (cmd, args) = match distro {
+        "arch" => ("pacman", vec!["-Sy", "--noconfirm"]),
+        "debian" => ("apt", vec!["install", "-y"]),
+        "fedora" => ("dnf", vec!["install", "-y"]),
+        _ => {
+            eprintln!("{} Unsupported distribution: {}", "error:".red(), distro);
+            return 1;
         }
     };
 
-    if output.status.success() {
-        println!("software {}", "installed successfully".green());
-        return 0;
-    } else {
-        eprintln!("software installation {}", "failed".red());
-        eprintln!("--- stdout ---");
-        eprintln!("{}", String::from_utf8_lossy(&output.stdout));
-        eprintln!("--- stderr ---");
-        eprintln!("{}", String::from_utf8_lossy(&output.stderr));
-        eprintln!("--------------");
-        return 1;
+    let mut command = Command::new("sudo");
+    command.arg(cmd).args(&args).args(packages);
+    println!(
+        "Running: {} {} {}",
+        cmd,
+        args.join(" "),
+        packages.join(" ").green()
+    );
+
+    match command.output() {
+        Ok(output) if output.status.success() => {
+            println!("Software {}.", "installed".green());
+            0
+        }
+        Ok(output) => {
+            eprintln!(
+                "{} Software installation failed:\nstdout: {}\nstderr: {}",
+                "error:".red(),
+                String::from_utf8_lossy(&output.stdout),
+                String::from_utf8_lossy(&output.stderr)
+            );
+            1
+        }
+        Err(e) => {
+            eprintln!("{} Failed to run {}: {}", "error:".red(), cmd, e);
+            1
+        }
     }
 }

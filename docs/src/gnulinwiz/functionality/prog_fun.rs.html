@@ -19,171 +19,253 @@
 <a href=#19 id=19 data-nosnippet>19</a> */
 <a href=#20 id=20 data-nosnippet>20</a>
 <a href=#21 id=21 data-nosnippet>21</a></span><span class="kw">use </span>colored::Colorize;
-<a href=#22 id=22 data-nosnippet>22</a><span class="kw">use </span>std::{io::stdin, process::exit};
-<a href=#23 id=23 data-nosnippet>23</a>
-<a href=#24 id=24 data-nosnippet>24</a><span class="doccomment">/// Returns the default list of software packages for installation.
-<a href=#25 id=25 data-nosnippet>25</a>///
-<a href=#26 id=26 data-nosnippet>26</a>/// Provides a static list of commonly used software packages to be installed
-<a href=#27 id=27 data-nosnippet>27</a>/// during the GNU/Linux configuration process.
-<a href=#28 id=28 data-nosnippet>28</a>///
-<a href=#29 id=29 data-nosnippet>29</a>/// # Returns
-<a href=#30 id=30 data-nosnippet>30</a>/// A static slice of package names as strings (e.g., "firefox", "zsh").
+<a href=#22 id=22 data-nosnippet>22</a><span class="kw">use </span>std::io::{<span class="self">self</span>, Write};
+<a href=#23 id=23 data-nosnippet>23</a><span class="kw">use </span>std::process::exit;
+<a href=#24 id=24 data-nosnippet>24</a>
+<a href=#25 id=25 data-nosnippet>25</a><span class="doccomment">/// Returns a default list of software packages for installation.
+<a href=#26 id=26 data-nosnippet>26</a>///
+<a href=#27 id=27 data-nosnippet>27</a>/// This function provides a predefined list of commonly used software packages (e.g., Firefox, Vim)
+<a href=#28 id=28 data-nosnippet>28</a>/// for the "gnulinwiz" project’s post-installation setup. It is used when the user opts for the default
+<a href=#29 id=29 data-nosnippet>29</a>/// software installation instead of a custom list. The returned slice is static to ensure consistent
+<a href=#30 id=30 data-nosnippet>30</a>/// access across the setup process.
 <a href=#31 id=31 data-nosnippet>31</a>///
-<a href=#32 id=32 data-nosnippet>32</a>/// # Examples
-<a href=#33 id=33 data-nosnippet>33</a>/// ```
-<a href=#34 id=34 data-nosnippet>34</a>/// let packages = default_sw_package();
-<a href=#35 id=35 data-nosnippet>35</a>/// assert_eq!(packages, &amp;["firefox", "clang", "zsh", "git", "gimp", "mpv", "spectacle", "curl"]);
+<a href=#32 id=32 data-nosnippet>32</a>/// # Returns
+<a href=#33 id=33 data-nosnippet>33</a>/// A static slice of strings containing package names (e.g., `["firefox", "clang", ...]`).
+<a href=#34 id=34 data-nosnippet>34</a>///
+<a href=#35 id=35 data-nosnippet>35</a>/// # Example
 <a href=#36 id=36 data-nosnippet>36</a>/// ```
-<a href=#37 id=37 data-nosnippet>37</a></span><span class="kw">pub fn </span>default_sw_package() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str] {
-<a href=#38 id=38 data-nosnippet>38</a>    <span class="kw-2">&amp;</span>[
-<a href=#39 id=39 data-nosnippet>39</a>        <span class="string">"firefox"</span>,
-<a href=#40 id=40 data-nosnippet>40</a>        <span class="string">"clang"</span>,
-<a href=#41 id=41 data-nosnippet>41</a>        <span class="string">"zsh"</span>,
-<a href=#42 id=42 data-nosnippet>42</a>        <span class="string">"git"</span>,
-<a href=#43 id=43 data-nosnippet>43</a>        <span class="string">"gimp"</span>,
-<a href=#44 id=44 data-nosnippet>44</a>        <span class="string">"mpv"</span>,
-<a href=#45 id=45 data-nosnippet>45</a>        <span class="string">"spectacle"</span>,
-<a href=#46 id=46 data-nosnippet>46</a>        <span class="string">"curl"</span>,
-<a href=#47 id=47 data-nosnippet>47</a>    ]
-<a href=#48 id=48 data-nosnippet>48</a>}
-<a href=#49 id=49 data-nosnippet>49</a>
-<a href=#50 id=50 data-nosnippet>50</a><span class="doccomment">/// Prints the GNU/Linux Config Wizard's license information to the console.
-<a href=#51 id=51 data-nosnippet>51</a>///
-<a href=#52 id=52 data-nosnippet>52</a>/// Displays the copyright notice, warranty disclaimer, and redistribution terms,
-<a href=#53 id=53 data-nosnippet>53</a>/// including a link to the GNU General Public License (GPL) v3.
-<a href=#54 id=54 data-nosnippet>54</a></span><span class="kw">pub fn </span>print_license_info() {
-<a href=#55 id=55 data-nosnippet>55</a>    <span class="kw">let </span>link = <span class="string">"https://www.gnu.org/licenses/gpl-3.0.html"</span>.blue();
-<a href=#56 id=56 data-nosnippet>56</a>    <span class="macro">println!</span>(
-<a href=#57 id=57 data-nosnippet>57</a>        <span class="string">"gnulinwiz AKA GNU/Linux Config Wizard  Copyright (C) 2025  Andrew Kushyk\n\
-<a href=#58 id=58 data-nosnippet>58</a>This program comes with ABSOLUTELY NO WARRANTY; for details see {}\n\
-<a href=#59 id=59 data-nosnippet>59</a>This is free software, and you are welcome to redistribute it\n\
-<a href=#60 id=60 data-nosnippet>60</a>under certain conditions; for details see {}\n"</span>,
-<a href=#61 id=61 data-nosnippet>61</a>        link, link
-<a href=#62 id=62 data-nosnippet>62</a>    );
-<a href=#63 id=63 data-nosnippet>63</a>}
-<a href=#64 id=64 data-nosnippet>64</a>
-<a href=#65 id=65 data-nosnippet>65</a><span class="doccomment">/// Validates that the program is not running with root privileges.
-<a href=#66 id=66 data-nosnippet>66</a>///
-<a href=#67 id=67 data-nosnippet>67</a>/// Checks the user ID to ensure the program is not executed as root, as running
-<a href=#68 id=68 data-nosnippet>68</a>/// with root privileges is considered unsafe and unnecessary. If root privileges
-<a href=#69 id=69 data-nosnippet>69</a>/// are detected, an error message is printed, and the program exits with status code 1.
-<a href=#70 id=70 data-nosnippet>70</a>///
-<a href=#71 id=71 data-nosnippet>71</a>/// # Panics
-<a href=#72 id=72 data-nosnippet>72</a>/// Exits the program with status code 1 if the user ID is 0 (root).
-<a href=#73 id=73 data-nosnippet>73</a></span><span class="kw">pub fn </span>validate_root_priviliges() {
-<a href=#74 id=74 data-nosnippet>74</a>    <span class="kw">if unsafe </span>{ libc::getuid() } == <span class="number">0 </span>{
-<a href=#75 id=75 data-nosnippet>75</a>        <span class="macro">eprintln!</span>(<span class="string">"{}"</span>, <span class="string">"this program is not recommended to run with root privileges. please run it with your current user.\nexample: ./gnulinwiz"</span>.red());
-<a href=#76 id=76 data-nosnippet>76</a>        <span class="comment">// exits if root
-<a href=#77 id=77 data-nosnippet>77</a>        </span>exit(<span class="number">1</span>);
-<a href=#78 id=78 data-nosnippet>78</a>    }
-<a href=#79 id=79 data-nosnippet>79</a>}
-<a href=#80 id=80 data-nosnippet>80</a>
-<a href=#81 id=81 data-nosnippet>81</a><span class="doccomment">/// Prints a green-colored success message to indicate a successful setup.
+<a href=#37 id=37 data-nosnippet>37</a>/// use gnulinwiz::functionality::prog_fun::default_sw_package;
+<a href=#38 id=38 data-nosnippet>38</a>/// let packages = default_sw_package();
+<a href=#39 id=39 data-nosnippet>39</a>/// assert_eq!(packages, &amp;["firefox", "clang", "zsh", "git", "gimp", "mpv", "curl", "vim"]);
+<a href=#40 id=40 data-nosnippet>40</a>/// ```
+<a href=#41 id=41 data-nosnippet>41</a>///
+<a href=#42 id=42 data-nosnippet>42</a>/// # See Also
+<a href=#43 id=43 data-nosnippet>43</a>/// - `software::software_setup`: Uses this list for default software installation.
+<a href=#44 id=44 data-nosnippet>44</a>/// - `check_sw_install_type`: Determines whether to use this list or a custom one.
+<a href=#45 id=45 data-nosnippet>45</a></span><span class="kw">pub fn </span>default_sw_package() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str] {
+<a href=#46 id=46 data-nosnippet>46</a>    <span class="kw-2">&amp;</span>[
+<a href=#47 id=47 data-nosnippet>47</a>        <span class="string">"firefox"</span>, <span class="string">"clang"</span>, <span class="string">"zsh"</span>, <span class="string">"git"</span>, <span class="string">"gimp"</span>, <span class="string">"mpv"</span>, <span class="string">"curl"</span>, <span class="string">"vim"</span>,
+<a href=#48 id=48 data-nosnippet>48</a>    ]
+<a href=#49 id=49 data-nosnippet>49</a>}
+<a href=#50 id=50 data-nosnippet>50</a>
+<a href=#51 id=51 data-nosnippet>51</a><span class="doccomment">/// Displays the GNU/Linux Config Wizard’s license information.
+<a href=#52 id=52 data-nosnippet>52</a>///
+<a href=#53 id=53 data-nosnippet>53</a>/// This function prints the GNU General Public License (GPL) v3 notice for the "gnulinwiz" project,
+<a href=#54 id=54 data-nosnippet>54</a>/// including a link to the full license text. It is called at the start of the setup process to inform
+<a href=#55 id=55 data-nosnippet>55</a>/// users of the software’s licensing terms and warranty disclaimer.
+<a href=#56 id=56 data-nosnippet>56</a>///
+<a href=#57 id=57 data-nosnippet>57</a>/// # Example
+<a href=#58 id=58 data-nosnippet>58</a>/// ```
+<a href=#59 id=59 data-nosnippet>59</a>/// use gnulinwiz::functionality::prog_fun::print_license_info;
+<a href=#60 id=60 data-nosnippet>60</a>/// print_license_info(); // Outputs GPL v3 notice with license link
+<a href=#61 id=61 data-nosnippet>61</a>/// ```
+<a href=#62 id=62 data-nosnippet>62</a>///
+<a href=#63 id=63 data-nosnippet>63</a>/// # See Also
+<a href=#64 id=64 data-nosnippet>64</a>/// - `gnu_linux_default_setup`: Calls this function as part of the setup process.
+<a href=#65 id=65 data-nosnippet>65</a></span><span class="kw">pub fn </span>print_license_info() {
+<a href=#66 id=66 data-nosnippet>66</a>    <span class="kw">let </span>link = <span class="string">"https://www.gnu.org/licenses/gpl-3.0.html"</span>.blue();
+<a href=#67 id=67 data-nosnippet>67</a>    <span class="macro">println!</span>(
+<a href=#68 id=68 data-nosnippet>68</a>        <span class="string">"gnulinwiz AKA GNU/Linux Config Wizard  Copyright (C) 2025  Andrew Kushyk\n\
+<a href=#69 id=69 data-nosnippet>69</a> This program comes with ABSOLUTELY NO WARRANTY; for details see {}\n\
+<a href=#70 id=70 data-nosnippet>70</a> This is free software, and you are welcome to redistribute it\n\
+<a href=#71 id=71 data-nosnippet>71</a> under certain conditions; for details see {}\n"</span>,
+<a href=#72 id=72 data-nosnippet>72</a>        link, link
+<a href=#73 id=73 data-nosnippet>73</a>    );
+<a href=#74 id=74 data-nosnippet>74</a>}
+<a href=#75 id=75 data-nosnippet>75</a>
+<a href=#76 id=76 data-nosnippet>76</a><span class="doccomment">/// Validates whether the program is running with root privileges.
+<a href=#77 id=77 data-nosnippet>77</a>///
+<a href=#78 id=78 data-nosnippet>78</a>/// This function checks if the program is executed as the root user by inspecting the user ID (UID).
+<a href=#79 id=79 data-nosnippet>79</a>/// In the "gnulinwiz" project, it ensures safe execution by enforcing root privilege policies. If run
+<a href=#80 id=80 data-nosnippet>80</a>/// as root without explicit permission, it terminates the program with an error message. Otherwise,
+<a href=#81 id=81 data-nosnippet>81</a>/// it logs the privilege status and returns the result.
 <a href=#82 id=82 data-nosnippet>82</a>///
-<a href=#83 id=83 data-nosnippet>83</a>/// Displays a confirmation message to the user when the GNU/Linux configuration
-<a href=#84 id=84 data-nosnippet>84</a>/// process completes without errors.
-<a href=#85 id=85 data-nosnippet>85</a></span><span class="kw">pub fn </span>print_setup_status_success() {
-<a href=#86 id=86 data-nosnippet>86</a>    <span class="macro">println!</span>(
-<a href=#87 id=87 data-nosnippet>87</a>        <span class="string">"{}"</span>,
-<a href=#88 id=88 data-nosnippet>88</a>        <span class="string">"all set! your gnu/linux system is ready to use!"</span>.green()
-<a href=#89 id=89 data-nosnippet>89</a>    );
-<a href=#90 id=90 data-nosnippet>90</a>}
-<a href=#91 id=91 data-nosnippet>91</a>
-<a href=#92 id=92 data-nosnippet>92</a><span class="doccomment">/// Prints a red-colored failure message to indicate an unsuccessful setup.
+<a href=#83 id=83 data-nosnippet>83</a>/// # Arguments
+<a href=#84 id=84 data-nosnippet>84</a>/// * `allow_root` - If `true`, permits execution as root; if `false`, terminates if run as root.
+<a href=#85 id=85 data-nosnippet>85</a>///
+<a href=#86 id=86 data-nosnippet>86</a>/// # Returns
+<a href=#87 id=87 data-nosnippet>87</a>/// * `true` - The program is running as root and `allow_root` is `true`.
+<a href=#88 id=88 data-nosnippet>88</a>/// * `false` - The program is not running as root.
+<a href=#89 id=89 data-nosnippet>89</a>///
+<a href=#90 id=90 data-nosnippet>90</a>/// # Safety
+<a href=#91 id=91 data-nosnippet>91</a>/// This function uses `unsafe` to call `libc::getuid` for UID checking. It is safe as long as the
+<a href=#92 id=92 data-nosnippet>92</a>/// underlying system call behaves as expected on Unix-like systems.
 <a href=#93 id=93 data-nosnippet>93</a>///
-<a href=#94 id=94 data-nosnippet>94</a>/// Displays a message prompting the user to fix reported issues and re-run the program
-<a href=#95 id=95 data-nosnippet>95</a>/// when the configuration process encounters an error.
-<a href=#96 id=96 data-nosnippet>96</a></span><span class="kw">pub fn </span>print_setup_status_failed() {
-<a href=#97 id=97 data-nosnippet>97</a>    <span class="macro">println!</span>(
-<a href=#98 id=98 data-nosnippet>98</a>        <span class="string">"{}"</span>,
-<a href=#99 id=99 data-nosnippet>99</a>        <span class="string">"something went wrong... please fix the reported problems and re-run the program."</span>.red()
-<a href=#100 id=100 data-nosnippet>100</a>    );
-<a href=#101 id=101 data-nosnippet>101</a>}
-<a href=#102 id=102 data-nosnippet>102</a>
-<a href=#103 id=103 data-nosnippet>103</a><span class="doccomment">/// Prompts the user to choose between default or custom software installation lists.
+<a href=#94 id=94 data-nosnippet>94</a>/// # Example
+<a href=#95 id=95 data-nosnippet>95</a>/// ```
+<a href=#96 id=96 data-nosnippet>96</a>/// use gnulinwiz::functionality::prog_fun::validate_root_priviliges;
+<a href=#97 id=97 data-nosnippet>97</a>/// let is_root = validate_root_priviliges(true);
+<a href=#98 id=98 data-nosnippet>98</a>/// if is_root {
+<a href=#99 id=99 data-nosnippet>99</a>///     println!("Running as root");
+<a href=#100 id=100 data-nosnippet>100</a>/// } else {
+<a href=#101 id=101 data-nosnippet>101</a>///     println!("Running as non-root");
+<a href=#102 id=102 data-nosnippet>102</a>/// }
+<a href=#103 id=103 data-nosnippet>103</a>/// ```
 <a href=#104 id=104 data-nosnippet>104</a>///
-<a href=#105 id=105 data-nosnippet>105</a>/// Asks the user to input a number: 0 for a custom list or any other number for the default list.
-<a href=#106 id=106 data-nosnippet>106</a>/// Returns `true` for a custom list and `false` for the default list. Invalid input triggers
-<a href=#107 id=107 data-nosnippet>107</a>/// an error and program exit via `handle_error`.
-<a href=#108 id=108 data-nosnippet>108</a>///
-<a href=#109 id=109 data-nosnippet>109</a>/// # Returns
-<a href=#110 id=110 data-nosnippet>110</a>/// * `true` if the user selects a custom list (input is 0).
-<a href=#111 id=111 data-nosnippet>111</a>/// * `false` if the user selects the default list (input is any non-zero number).
-<a href=#112 id=112 data-nosnippet>112</a>///
-<a href=#113 id=113 data-nosnippet>113</a>/// # Panics
-<a href=#114 id=114 data-nosnippet>114</a>/// Exits the program via `handle_error` if the input cannot be parsed as an integer.
-<a href=#115 id=115 data-nosnippet>115</a>///
-<a href=#116 id=116 data-nosnippet>116</a>/// # Examples
-<a href=#117 id=117 data-nosnippet>117</a>/// ```
-<a href=#118 id=118 data-nosnippet>118</a>/// // Simulating user input of "0" would return true
-<a href=#119 id=119 data-nosnippet>119</a>/// // Simulating user input of "1" would return false
-<a href=#120 id=120 data-nosnippet>120</a>/// let use_custom = check_sw_install_type();
-<a href=#121 id=121 data-nosnippet>121</a>/// ```
-<a href=#122 id=122 data-nosnippet>122</a></span><span class="kw">pub fn </span>check_sw_install_type() -&gt; bool {
-<a href=#123 id=123 data-nosnippet>123</a>    <span class="macro">println!</span>(
-<a href=#124 id=124 data-nosnippet>124</a>        <span class="string">"{}"</span>,
-<a href=#125 id=125 data-nosnippet>125</a>        <span class="string">"enter any number for the default list of software or 0 to enter a custom list:"</span>.yellow()
-<a href=#126 id=126 data-nosnippet>126</a>    );
-<a href=#127 id=127 data-nosnippet>127</a>
-<a href=#128 id=128 data-nosnippet>128</a>    <span class="kw">let </span>input = read_input();
-<a href=#129 id=129 data-nosnippet>129</a>
-<a href=#130 id=130 data-nosnippet>130</a>    <span class="kw">match </span>input.trim().parse::&lt;i8&gt;() {
-<a href=#131 id=131 data-nosnippet>131</a>        <span class="prelude-val">Ok</span>(value) <span class="kw">if </span>value == <span class="number">0 </span>=&gt; {
-<a href=#132 id=132 data-nosnippet>132</a>            <span class="macro">println!</span>(<span class="string">"{}"</span>, <span class="string">"you chose to enter a custom list.\ninstallation takes a few minutes, please wait..."</span>.green());
-<a href=#133 id=133 data-nosnippet>133</a>            <span class="kw">return </span><span class="bool-val">true</span>;
-<a href=#134 id=134 data-nosnippet>134</a>        }
-<a href=#135 id=135 data-nosnippet>135</a>        <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; {
-<a href=#136 id=136 data-nosnippet>136</a>            <span class="macro">println!</span>(<span class="string">"{}"</span>, <span class="string">"you chose to use the default list.\ninstallation takes a few minutes, please wait..."</span>.green());
-<a href=#137 id=137 data-nosnippet>137</a>            <span class="kw">return </span><span class="bool-val">false</span>;
-<a href=#138 id=138 data-nosnippet>138</a>        }
-<a href=#139 id=139 data-nosnippet>139</a>        <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; handle_error(
-<a href=#140 id=140 data-nosnippet>140</a>            <span class="string">"please enter 0 for a custom list or any other number for the default list."</span>,
-<a href=#141 id=141 data-nosnippet>141</a>        ),
-<a href=#142 id=142 data-nosnippet>142</a>    }
+<a href=#105 id=105 data-nosnippet>105</a>/// # See Also
+<a href=#106 id=106 data-nosnippet>106</a>/// - `gnu_linux_default_setup`: Uses this function to validate privileges during setup.
+<a href=#107 id=107 data-nosnippet>107</a></span><span class="kw">pub fn </span>validate_root_priviliges(allow_root: bool) -&gt; bool {
+<a href=#108 id=108 data-nosnippet>108</a>    <span class="kw">if unsafe </span>{ libc::getuid() } == <span class="number">0 </span>{
+<a href=#109 id=109 data-nosnippet>109</a>        <span class="kw">if </span>!allow_root {
+<a href=#110 id=110 data-nosnippet>110</a>            <span class="macro">eprintln!</span>(
+<a href=#111 id=111 data-nosnippet>111</a>                <span class="string">"{}"</span>,
+<a href=#112 id=112 data-nosnippet>112</a>                <span class="string">"Running as root is not recommended. Use --allow-root to proceed."</span>.red()
+<a href=#113 id=113 data-nosnippet>113</a>            );
+<a href=#114 id=114 data-nosnippet>114</a>            exit(<span class="number">1</span>);
+<a href=#115 id=115 data-nosnippet>115</a>        }
+<a href=#116 id=116 data-nosnippet>116</a>        <span class="macro">println!</span>(<span class="string">"{}"</span>, <span class="string">"Running with root privileges."</span>.green());
+<a href=#117 id=117 data-nosnippet>117</a>        <span class="bool-val">true
+<a href=#118 id=118 data-nosnippet>118</a>    </span>} <span class="kw">else </span>{
+<a href=#119 id=119 data-nosnippet>119</a>        <span class="bool-val">false
+<a href=#120 id=120 data-nosnippet>120</a>    </span>}
+<a href=#121 id=121 data-nosnippet>121</a>}
+<a href=#122 id=122 data-nosnippet>122</a>
+<a href=#123 id=123 data-nosnippet>123</a><span class="doccomment">/// Prints a success message indicating a completed setup.
+<a href=#124 id=124 data-nosnippet>124</a>///
+<a href=#125 id=125 data-nosnippet>125</a>/// This function displays a confirmation message when the "gnulinwiz" setup process completes
+<a href=#126 id=126 data-nosnippet>126</a>/// successfully, informing the user that their GNU/Linux system is ready. It uses colored output
+<a href=#127 id=127 data-nosnippet>127</a>/// for better visibility and is called after all configuration tasks are validated.
+<a href=#128 id=128 data-nosnippet>128</a>///
+<a href=#129 id=129 data-nosnippet>129</a>/// # Example
+<a href=#130 id=130 data-nosnippet>130</a>/// ```
+<a href=#131 id=131 data-nosnippet>131</a>/// use gnulinwiz::functionality::prog_fun::print_setup_status_success;
+<a href=#132 id=132 data-nosnippet>132</a>/// print_setup_status_success(); // Outputs "All set! Your GNU/Linux system is ready to use!"
+<a href=#133 id=133 data-nosnippet>133</a>/// ```
+<a href=#134 id=134 data-nosnippet>134</a>///
+<a href=#135 id=135 data-nosnippet>135</a>/// # See Also
+<a href=#136 id=136 data-nosnippet>136</a>/// - `task::validate_task_statuses`: Determines when to call this function.
+<a href=#137 id=137 data-nosnippet>137</a>/// - `print_setup_status_failed`: The counterpart for failed setups.
+<a href=#138 id=138 data-nosnippet>138</a></span><span class="kw">pub fn </span>print_setup_status_success() {
+<a href=#139 id=139 data-nosnippet>139</a>    <span class="macro">println!</span>(
+<a href=#140 id=140 data-nosnippet>140</a>        <span class="string">"{}"</span>,
+<a href=#141 id=141 data-nosnippet>141</a>        <span class="string">"All set! Your GNU/Linux system is ready to use!"</span>.green()
+<a href=#142 id=142 data-nosnippet>142</a>    );
 <a href=#143 id=143 data-nosnippet>143</a>}
 <a href=#144 id=144 data-nosnippet>144</a>
-<a href=#145 id=145 data-nosnippet>145</a><span class="comment">// Reads a line of input from stdin and returns it as a String.
-<a href=#146 id=146 data-nosnippet>146</a>// Handles read errors by calling handle_error and exiting the program.
-<a href=#147 id=147 data-nosnippet>147</a></span><span class="kw">fn </span>read_input() -&gt; String {
-<a href=#148 id=148 data-nosnippet>148</a>    <span class="kw">let </span><span class="kw-2">mut </span>input = String::new();
-<a href=#149 id=149 data-nosnippet>149</a>    <span class="kw">if let </span><span class="prelude-val">Err</span>(error) = stdin().read_line(<span class="kw-2">&amp;mut </span>input) {
-<a href=#150 id=150 data-nosnippet>150</a>        handle_error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{}{}"</span>, <span class="string">"error reading input: "</span>.red(), error))
-<a href=#151 id=151 data-nosnippet>151</a>    }
-<a href=#152 id=152 data-nosnippet>152</a>    <span class="kw">return </span>input;
-<a href=#153 id=153 data-nosnippet>153</a>}
-<a href=#154 id=154 data-nosnippet>154</a>
-<a href=#155 id=155 data-nosnippet>155</a><span class="doccomment">/// Handles errors by printing a message and exiting the program.
+<a href=#145 id=145 data-nosnippet>145</a><span class="doccomment">/// Prints a failure message for setup errors.
+<a href=#146 id=146 data-nosnippet>146</a>///
+<a href=#147 id=147 data-nosnippet>147</a>/// This function displays an error message when the "gnulinwiz" setup process fails, prompting the
+<a href=#148 id=148 data-nosnippet>148</a>/// user to check error logs. It uses colored output for emphasis and is called when configuration
+<a href=#149 id=149 data-nosnippet>149</a>/// tasks do not complete successfully.
+<a href=#150 id=150 data-nosnippet>150</a>///
+<a href=#151 id=151 data-nosnippet>151</a>/// # Example
+<a href=#152 id=152 data-nosnippet>152</a>/// ```
+<a href=#153 id=153 data-nosnippet>153</a>/// use gnulinwiz::functionality::prog_fun::print_setup_status_failed;
+<a href=#154 id=154 data-nosnippet>154</a>/// print_setup_status_failed(); // Outputs "Setup failed. Please check error messages and try again."
+<a href=#155 id=155 data-nosnippet>155</a>/// ```
 <a href=#156 id=156 data-nosnippet>156</a>///
-<a href=#157 id=157 data-nosnippet>157</a>/// Prints the provided error message in red, followed by a call to `print_setup_status_failed`,
-<a href=#158 id=158 data-nosnippet>158</a>/// and terminates the program with exit code 1.
-<a href=#159 id=159 data-nosnippet>159</a>///
-<a href=#160 id=160 data-nosnippet>160</a>/// # Arguments
-<a href=#161 id=161 data-nosnippet>161</a>/// * `message` - The error message to display.
-<a href=#162 id=162 data-nosnippet>162</a>///
-<a href=#163 id=163 data-nosnippet>163</a>/// # Panics
-<a href=#164 id=164 data-nosnippet>164</a>/// Always exits the program with status code 1 after printing the error message.
-<a href=#165 id=165 data-nosnippet>165</a></span><span class="kw">pub fn </span>handle_error(message: <span class="kw-2">&amp;</span>str) -&gt; ! {
-<a href=#166 id=166 data-nosnippet>166</a>    <span class="macro">eprintln!</span>(<span class="string">"{}{}"</span>, <span class="string">"error: "</span>.red(), message);
-<a href=#167 id=167 data-nosnippet>167</a>    print_setup_status_failed();
-<a href=#168 id=168 data-nosnippet>168</a>    exit(<span class="number">1</span>);
-<a href=#169 id=169 data-nosnippet>169</a>}
-<a href=#170 id=170 data-nosnippet>170</a>
-<a href=#171 id=171 data-nosnippet>171</a><span class="doccomment">/// Collects a list of software packages from user input for installation.
+<a href=#157 id=157 data-nosnippet>157</a>/// # See Also
+<a href=#158 id=158 data-nosnippet>158</a>/// - `task::validate_task_statuses`: Determines when to call this function.
+<a href=#159 id=159 data-nosnippet>159</a>/// - `print_setup_status_success`: The counterpart for successful setups.
+<a href=#160 id=160 data-nosnippet>160</a></span><span class="kw">pub fn </span>print_setup_status_failed() {
+<a href=#161 id=161 data-nosnippet>161</a>    <span class="macro">println!</span>(
+<a href=#162 id=162 data-nosnippet>162</a>        <span class="string">"{}"</span>,
+<a href=#163 id=163 data-nosnippet>163</a>        <span class="string">"Setup failed. Please check error messages and try again."</span>.red()
+<a href=#164 id=164 data-nosnippet>164</a>    );
+<a href=#165 id=165 data-nosnippet>165</a>}
+<a href=#166 id=166 data-nosnippet>166</a>
+<a href=#167 id=167 data-nosnippet>167</a><span class="doccomment">/// Prompts the user to choose between default or custom software lists.
+<a href=#168 id=168 data-nosnippet>168</a>///
+<a href=#169 id=169 data-nosnippet>169</a>/// This function interactively asks the user to select a software installation mode in the
+<a href=#170 id=170 data-nosnippet>170</a>/// "gnulinwiz" project. Entering `0` selects a custom list, while any other number selects the
+<a href=#171 id=171 data-nosnippet>171</a>/// default list. It loops until valid input is provided, ensuring robust user interaction.
 <a href=#172 id=172 data-nosnippet>172</a>///
-<a href=#173 id=173 data-nosnippet>173</a>/// Prompts the user to enter a space-separated list of software package names,
-<a href=#174 id=174 data-nosnippet>174</a>/// reads the input, and splits it into a vector of strings. Input errors are handled
-<a href=#175 id=175 data-nosnippet>175</a>/// via the `read_input` function.
+<a href=#173 id=173 data-nosnippet>173</a>/// # Returns
+<a href=#174 id=174 data-nosnippet>174</a>/// * `true` - The user selected a custom software list.
+<a href=#175 id=175 data-nosnippet>175</a>/// * `false` - The user selected the default software list.
 <a href=#176 id=176 data-nosnippet>176</a>///
-<a href=#177 id=177 data-nosnippet>177</a>/// # Returns
-<a href=#178 id=178 data-nosnippet>178</a>/// A vector of owned `String`s containing the package names entered by the user.
-<a href=#179 id=179 data-nosnippet>179</a>///
-<a href=#180 id=180 data-nosnippet>180</a>/// # Examples
-<a href=#181 id=181 data-nosnippet>181</a>/// ```
-<a href=#182 id=182 data-nosnippet>182</a>/// // Simulating user input of "vim nano" would return vec!["vim".to_string(), "nano".to_string()]
-<a href=#183 id=183 data-nosnippet>183</a>/// let packages = set_sw_list();
-<a href=#184 id=184 data-nosnippet>184</a>/// ```
-<a href=#185 id=185 data-nosnippet>185</a></span><span class="kw">pub fn </span>set_sw_list() -&gt; Vec&lt;String&gt; {
-<a href=#186 id=186 data-nosnippet>186</a>    <span class="macro">println!</span>(<span class="string">"enter the software packages to install (separated by spaces):"</span>);
-<a href=#187 id=187 data-nosnippet>187</a>    <span class="kw">let </span>input = read_input();
-<a href=#188 id=188 data-nosnippet>188</a>    <span class="kw">return </span>input.trim().split_whitespace().map(String::from).collect();
-<a href=#189 id=189 data-nosnippet>189</a>}</code></pre></div></section></main></body></html>
+<a href=#177 id=177 data-nosnippet>177</a>/// # Example
+<a href=#178 id=178 data-nosnippet>178</a>/// ```
+<a href=#179 id=179 data-nosnippet>179</a>/// use gnulinwiz::functionality::prog_fun::check_sw_install_type;
+<a href=#180 id=180 data-nosnippet>180</a>/// let use_custom = check_sw_install_type();
+<a href=#181 id=181 data-nosnippet>181</a>/// if use_custom {
+<a href=#182 id=182 data-nosnippet>182</a>///     println!("User chose custom software list");
+<a href=#183 id=183 data-nosnippet>183</a>/// } else {
+<a href=#184 id=184 data-nosnippet>184</a>///     println!("User chose default software list");
+<a href=#185 id=185 data-nosnippet>185</a>/// }
+<a href=#186 id=186 data-nosnippet>186</a>/// ```
+<a href=#187 id=187 data-nosnippet>187</a>///
+<a href=#188 id=188 data-nosnippet>188</a>/// # See Also
+<a href=#189 id=189 data-nosnippet>189</a>/// - `read_input`: Used to capture user input.
+<a href=#190 id=190 data-nosnippet>190</a>/// - `default_sw_package`: Provides the default list if selected.
+<a href=#191 id=191 data-nosnippet>191</a>/// - `set_sw_list`: Collects the custom list if selected.
+<a href=#192 id=192 data-nosnippet>192</a></span><span class="kw">pub fn </span>check_sw_install_type() -&gt; bool {
+<a href=#193 id=193 data-nosnippet>193</a>    <span class="kw">loop </span>{
+<a href=#194 id=194 data-nosnippet>194</a>        <span class="macro">println!</span>(
+<a href=#195 id=195 data-nosnippet>195</a>            <span class="string">"{}"</span>,
+<a href=#196 id=196 data-nosnippet>196</a>            <span class="string">"Enter 0 for a custom software list or any other number for default:"</span>.yellow()
+<a href=#197 id=197 data-nosnippet>197</a>        );
+<a href=#198 id=198 data-nosnippet>198</a>
+<a href=#199 id=199 data-nosnippet>199</a>        <span class="kw">let </span>input = read_input();
+<a href=#200 id=200 data-nosnippet>200</a>        <span class="kw">match </span>input.trim().parse::&lt;i8&gt;() {
+<a href=#201 id=201 data-nosnippet>201</a>            <span class="prelude-val">Ok</span>(<span class="number">0</span>) =&gt; {
+<a href=#202 id=202 data-nosnippet>202</a>                <span class="macro">println!</span>(<span class="string">"{}"</span>, <span class="string">"Selected custom software list."</span>.green());
+<a href=#203 id=203 data-nosnippet>203</a>                <span class="kw">return </span><span class="bool-val">true</span>;
+<a href=#204 id=204 data-nosnippet>204</a>            }
+<a href=#205 id=205 data-nosnippet>205</a>            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; {
+<a href=#206 id=206 data-nosnippet>206</a>                <span class="macro">println!</span>(<span class="string">"{}"</span>, <span class="string">"Selected default software list."</span>.green());
+<a href=#207 id=207 data-nosnippet>207</a>                <span class="kw">return </span><span class="bool-val">false</span>;
+<a href=#208 id=208 data-nosnippet>208</a>            }
+<a href=#209 id=209 data-nosnippet>209</a>            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">println!</span>(<span class="string">"{}"</span>, <span class="string">"Invalid input. Please enter a number."</span>.red()),
+<a href=#210 id=210 data-nosnippet>210</a>        }
+<a href=#211 id=211 data-nosnippet>211</a>    }
+<a href=#212 id=212 data-nosnippet>212</a>}
+<a href=#213 id=213 data-nosnippet>213</a>
+<a href=#214 id=214 data-nosnippet>214</a><span class="doccomment">/// Reads a line of input from standard input (stdin).
+<a href=#215 id=215 data-nosnippet>215</a>///
+<a href=#216 id=216 data-nosnippet>216</a>/// This function captures a single line of user input in the "gnulinwiz" project, used for
+<a href=#217 id=217 data-nosnippet>217</a>/// interactive tasks like prompting for software lists or overwrite confirmations. It flushes
+<a href=#218 id=218 data-nosnippet>218</a>/// stdout to ensure prompts are displayed and expects input to be valid UTF-8, panicking on
+<a href=#219 id=219 data-nosnippet>219</a>/// I/O errors for simplicity.
+<a href=#220 id=220 data-nosnippet>220</a>///
+<a href=#221 id=221 data-nosnippet>221</a>/// # Returns
+<a href=#222 id=222 data-nosnippet>222</a>/// A `String` containing the user’s input, including the trailing newline.
+<a href=#223 id=223 data-nosnippet>223</a>///
+<a href=#224 id=224 data-nosnippet>224</a>/// # Panics
+<a href=#225 id=225 data-nosnippet>225</a>/// Panics if reading from stdin fails (e.g., due to I/O errors). This is intentional for simplicity,
+<a href=#226 id=226 data-nosnippet>226</a>/// as stdin is expected to be available in an interactive context.
+<a href=#227 id=227 data-nosnippet>227</a>///
+<a href=#228 id=228 data-nosnippet>228</a>/// # Example
+<a href=#229 id=229 data-nosnippet>229</a>/// ```
+<a href=#230 id=230 data-nosnippet>230</a>/// use gnulinwiz::functionality::prog_fun::read_input;
+<a href=#231 id=231 data-nosnippet>231</a>/// let input = read_input();
+<a href=#232 id=232 data-nosnippet>232</a>/// println!("User entered: {}", input.trim());
+<a href=#233 id=233 data-nosnippet>233</a>/// ```
+<a href=#234 id=234 data-nosnippet>234</a>///
+<a href=#235 id=235 data-nosnippet>235</a>/// # See Also
+<a href=#236 id=236 data-nosnippet>236</a>/// - `check_sw_install_type`: Uses this function for user input.
+<a href=#237 id=237 data-nosnippet>237</a>/// - `set_sw_list`: Uses this function to collect custom package names.
+<a href=#238 id=238 data-nosnippet>238</a></span><span class="kw">pub fn </span>read_input() -&gt; String {
+<a href=#239 id=239 data-nosnippet>239</a>    <span class="kw">let </span><span class="kw-2">mut </span>input = String::new();
+<a href=#240 id=240 data-nosnippet>240</a>    io::stdout().flush().unwrap();
+<a href=#241 id=241 data-nosnippet>241</a>    io::stdin()
+<a href=#242 id=242 data-nosnippet>242</a>        .read_line(<span class="kw-2">&amp;mut </span>input)
+<a href=#243 id=243 data-nosnippet>243</a>        .expect(<span class="string">"Failed to read input"</span>);
+<a href=#244 id=244 data-nosnippet>244</a>    input
+<a href=#245 id=245 data-nosnippet>245</a>}
+<a href=#246 id=246 data-nosnippet>246</a>
+<a href=#247 id=247 data-nosnippet>247</a><span class="doccomment">/// Collects custom software packages from user input.
+<a href=#248 id=248 data-nosnippet>248</a>///
+<a href=#249 id=249 data-nosnippet>249</a>/// This function prompts the user to enter a space-separated list of software packages for
+<a href=#250 id=250 data-nosnippet>250</a>/// installation in the "gnulinwiz" project. It splits the input into individual package names
+<a href=#251 id=251 data-nosnippet>251</a>/// and returns them as a vector of strings, used when the user selects a custom installation mode.
+<a href=#252 id=252 data-nosnippet>252</a>///
+<a href=#253 id=253 data-nosnippet>253</a>/// # Returns
+<a href=#254 id=254 data-nosnippet>254</a>/// A `Vec&lt;String&gt;` containing the user-specified package names.
+<a href=#255 id=255 data-nosnippet>255</a>///
+<a href=#256 id=256 data-nosnippet>256</a>/// # Example
+<a href=#257 id=257 data-nosnippet>257</a>/// ```
+<a href=#258 id=258 data-nosnippet>258</a>/// use gnulinwiz::functionality::prog_fun::set_sw_list;
+<a href=#259 id=259 data-nosnippet>259</a>/// let packages = set_sw_list();
+<a href=#260 id=260 data-nosnippet>260</a>/// println!("Custom packages: {:?}", packages);
+<a href=#261 id=261 data-nosnippet>261</a>/// ```
+<a href=#262 id=262 data-nosnippet>262</a>///
+<a href=#263 id=263 data-nosnippet>263</a>/// # See Also
+<a href=#264 id=264 data-nosnippet>264</a>/// - `read_input`: Used to capture the user’s package list.
+<a href=#265 id=265 data-nosnippet>265</a>/// - `check_sw_install_type`: Determines when to call this function.
+<a href=#266 id=266 data-nosnippet>266</a>/// - `software::software_setup`: Installs the collected packages.
+<a href=#267 id=267 data-nosnippet>267</a></span><span class="kw">pub fn </span>set_sw_list() -&gt; Vec&lt;String&gt; {
+<a href=#268 id=268 data-nosnippet>268</a>    <span class="macro">println!</span>(<span class="string">"Enter software packages to install (space-separated):"</span>);
+<a href=#269 id=269 data-nosnippet>269</a>    <span class="kw">let </span>input = read_input();
+<a href=#270 id=270 data-nosnippet>270</a>    input.trim().split_whitespace().map(String::from).collect()
+<a href=#271 id=271 data-nosnippet>271</a>}</code></pre></div></section></main></body></html>
