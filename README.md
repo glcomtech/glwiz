@@ -15,8 +15,7 @@ The ultimate post-installation setup assistant for GNU/Linux, streamlining your 
 
 ## How to use
 
-To use the program download the latest version here: 
-https://gitlab.com/git-user-cpp/gnulinwiz/-/tree/main/releazes?ref_type=heads
+To use the program download the latest version here: https://github.com/git-user-cpp/gnulinwiz/tree/main/releazes
 
 Unpack the archive:
 ```
