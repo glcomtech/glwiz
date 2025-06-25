@@ -110,9 +110,11 @@ pub mod user_cfg;
 /// unless confirmed by the user.
 ///
 /// # Example
-/// ```
+/// ```should_panic
+/// // Requires ../configs/zram-generator.conf and sudo privileges.
+/// // Use integration tests for actual validation.
 /// use gnulinwiz::functionality::zram::zram_swap_setup;
 /// let result = zram_swap_setup();
-/// assert_eq!(result, 0); // Successful ZRAM setup
+/// assert_eq!(result, 0); // Success if config exists and no overwrite
 /// ```
 pub mod zram;
