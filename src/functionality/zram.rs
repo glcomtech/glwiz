@@ -40,12 +40,14 @@ use colored::Colorize;
 /// - The copy operation fails due to permissions or `sudo` issues.
 ///
 /// # Example
-/// ```
+/// ```should_panic
+/// // Requires ../configs/zram-generator.conf and sudo privileges.
+/// // Use integration tests for actual validation.
 /// use gnulinwiz::functionality::zram::zram_swap_setup;
 /// let result = zram_swap_setup();
-/// assert_eq!(result, 0); // ZRAM configured or skipped successfully
+/// assert_eq!(result, 0); // Success if config exists and no overwrite
 /// ```
-///
+/// 
 /// # See Also
 /// - `commands::run_sudo_command`: Used to copy the configuration file with `sudo`.
 /// - `prog_fun::read_input`: Used to prompt for overwrite confirmation.

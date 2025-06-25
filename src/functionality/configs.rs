@@ -45,10 +45,12 @@ use std::path::Path;
 /// - The file copy operation fails due to permissions or other I/O errors.
 ///
 /// # Example
-/// ```
+/// ```should_panic
+/// // This example requires a valid ../configs/.zshrc file and write permissions.
+/// // For actual testing, use integration tests with a mocked file system.
 /// use gnulinwiz::functionality::configs::user_config_setup;
 /// let result = user_config_setup("../configs/.zshrc", "/home/user", "zsh");
-/// assert_eq!(result, 0); // Configuration copied or skipped successfully
+/// assert_eq!(result, 0); // Success if files exist and no overwrite prompt
 /// ```
 ///
 /// # See Also

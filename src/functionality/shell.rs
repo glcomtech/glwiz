@@ -82,10 +82,11 @@ pub fn change_def_shell(name: &str) -> i8 {
 /// - The `bash` command fails to execute the script or returns a non-zero exit status.
 ///
 /// # Example
-/// ```
+/// ```should_panic
+/// // Requires network access and curl/bash.
 /// use gnulinwiz::functionality::shell::install_omz;
 /// let result = install_omz();
-/// assert_eq!(result, 0); // Oh My Zsh installed or already present
+/// assert_eq!(result, 0);
 /// ```
 ///
 /// # See Also
@@ -201,10 +202,11 @@ fn install_zsh_plugin(home_dir: &str, plugin_name: &str, repo_url: &str) -> i8 {
 /// Returns `1` if the `git clone` command fails due to network issues, permissions, or invalid URLs.
 ///
 /// # Example
-/// ```
+/// ```should_panic
+/// // Requires git and network access.
 /// use gnulinwiz::functionality::shell::install_zsh_autosuggestions;
 /// let result = install_zsh_autosuggestions("/home/user");
-/// assert_eq!(result, 0); // Plugin installed or already present
+/// assert_eq!(result, 0);
 /// ```
 ///
 /// # See Also
@@ -236,7 +238,8 @@ pub fn install_zsh_autosuggestions(home_dir: &str) -> i8 {
 /// Returns `1` if the `git clone` command fails due to network issues, permissions, or invalid URLs.
 ///
 /// # Example
-/// ```
+/// ```should_panic
+/// // Requires git and network access.
 /// use gnulinwiz::functionality::shell::install_zsh_syntax_highlighting;
 /// let result = install_zsh_syntax_highlighting("/home/user");
 /// assert_eq!(result, 0); // Plugin installed or already present

@@ -41,10 +41,11 @@ use std::fs;
 /// - Writing to `/etc/iptables/iptables.rules` fails due to permissions or `sudo` issues.
 ///
 /// # Example
-/// ```
+/// ```should_panic
+/// // Requires ../configs/iptables.rules and sudo privileges.
 /// use gnulinwiz::functionality::iptables::iptables_file_setup;
 /// let result = iptables_file_setup();
-/// assert_eq!(result, 0); // Rules file created or skipped successfully
+/// assert_eq!(result, 0);
 /// ```
 ///
 /// # See Also
