@@ -4,7 +4,7 @@ version = "1.0.0"
 edition = "2021"
 authors = ["Andrew Kushyk <akushyk799 at gmail.com>"]
 description = "gnulinwiz (GNU/Linux Config Wizard) The ultimate post-installation setup assistant for GNU/Linux, streamlining your configuration process with ease and precision."
-license = "GPL-3.0-or-later"
+license = "AGPL-3.0-or-later"
 repository = "https://gitlab.com/git-user-cpp/gnulinwiz"
 
 [dependencies]
