@@ -44,7 +44,7 @@ use std::process::exit;
 /// - `check_sw_install_type`: Determines whether to use this list or a custom one.
 pub fn default_sw_package() -> &'static [&'static str] {
     &[
-        "firefox", "clang", "zsh", "git", "gimp", "mpv", "curl", "vim",
+        "firefox", "clang", "zsh", "git", "gimp", "mpv", "curl", "vim", "rkhunter",
     ]
 }
 
