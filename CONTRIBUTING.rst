@@ -10,7 +10,7 @@ Contributing Code
 -----------------
 
 - By contributing to this project, you share your code under the GNU GENERAL PUBLIC LICENSE Version 3, as specified in the LICENSE file.
-- Follow instructions and code style from https://gitlab.com/git-user-cpp/gnulinwiz/-/blob/main/doc/CODESTYLE.rst?ref_type=heads
+- Follow instructions and code style from https://github.com/gnulinwiz/gnulinwiz/blob/main/CODESTYLE.rst
 - Don't forget to add yourself to the AUTHORS file.
 
 Code Review
