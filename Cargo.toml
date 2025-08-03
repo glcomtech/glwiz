@@ -1,7 +1,7 @@
 [package]
 name = "gnulinwiz"
-version = "1.0.0"
-edition = "2021"
+version = "1.0.1"
+edition = "2024"
 authors = ["Andrew Kushyk <akushyk799 at gmail.com>"]
 description = "gnulinwiz (GNU/Linux Config Wizard) The ultimate post-installation setup assistant for GNU/Linux, streamlining your configuration process with ease and precision."
 license = "AGPL-3.0-or-later"
