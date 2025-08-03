@@ -36,7 +36,7 @@ use std::process::exit;
 /// ```
 /// use gnulinwiz::functionality::prog_fun::default_sw_package;
 /// let packages = default_sw_package();
-/// assert_eq!(packages, &["firefox", "clang", "zsh", "git", "gimp", "mpv", "curl", "vim"]);
+/// assert_eq!(packages, &["firefox", "clang", "zsh", "git", "gimp", "mpv", "curl", "vim", "rkhunter"]);
 /// ```
 ///
 /// # See Also
