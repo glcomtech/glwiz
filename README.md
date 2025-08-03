@@ -16,7 +16,7 @@ The ultimate post-installation setup assistant for GNU/Linux, streamlining your 
 
 ## How to use
 
-To use the program download the latest version here: https://github.com/git-user-cpp/gnulinwiz/tree/main/releazes
+To use the program download the latest version here: https://github.com/gnulinwiz/gnulinwiz/tree/main/releazes
 
 Unpack the archive:
 ```
@@ -53,7 +53,7 @@ cargo build
 ---
 
 ## Documentation
-https://git-user-cpp.github.io/gnulinwiz/gnulinwiz/index.html
+https://gnulinwiz.github.io/gnulinwiz/gnulinwiz/index.html
 
 ---
 
