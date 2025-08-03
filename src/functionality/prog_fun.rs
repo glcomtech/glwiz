@@ -36,7 +36,7 @@ use std::process::exit;
 /// ```
 /// use gnulinwiz::functionality::prog_fun::default_sw_package;
 /// let packages = default_sw_package();
-/// assert_eq!(packages, &["firefox", "clang", "zsh", "git", "gimp", "mpv", "curl", "vim"]);
+/// assert_eq!(packages, &["firefox", "clang", "zsh", "git", "gimp", "mpv", "curl", "vim", "rkhunter"]);
 /// ```
 ///
 /// # See Also
@@ -44,7 +44,7 @@ use std::process::exit;
 /// - `check_sw_install_type`: Determines whether to use this list or a custom one.
 pub fn default_sw_package() -> &'static [&'static str] {
     &[
-        "firefox", "clang", "zsh", "git", "gimp", "mpv", "curl", "vim",
+        "firefox", "clang", "zsh", "git", "gimp", "mpv", "curl", "vim", "rkhunter",
     ]
 }
 
