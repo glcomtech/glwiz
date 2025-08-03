@@ -2,5 +2,5 @@
 
 Coding Style
 ============
-
-Just use `cargo fmt` before commits and pushes.
+- All pull requests must merge to development branch.
+- Just use `cargo fmt` before commits and pushes.
