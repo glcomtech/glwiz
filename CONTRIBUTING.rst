@@ -9,8 +9,10 @@ Reporting Issues
 Contributing Code
 -----------------
 
-- By contributing to this project, you share your code under the GNU GENERAL PUBLIC LICENSE Version 3, as specified in the LICENSE file.
-- Follow instructions and code style from https://github.com/gnulinwiz/gnulinwiz/blob/main/CODESTYLE.rst
+- By contributing to this project, you share your code under the GNU AFFERO GENERAL PUBLIC LICENSE Version 3, as specified in the LICENSE file.
+- Create a new branch for your feature (for example: git checkout -b feature_name)
+- Your pull request must merge your feature branch to project's development branch
+- Project code style: https://github.com/gnulinwiz/gnulinwiz/blob/main/CODESTYLE.rst
 - Don't forget to add yourself to the AUTHORS file.
 
 Code Review
