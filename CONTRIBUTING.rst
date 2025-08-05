@@ -4,7 +4,7 @@ Contributing Guidelines
 Reporting Issues
 ----------------
 
-- Before creating a new Issue, please check first if a similar Issue already exists or was recently closed https://gitlab.com/git-user-cpp/gnulinwiz/-/boards
+- Before creating a new Issue, please check first if a similar Issue already exists or was recently closed https://github.com/gnulinwiz/gnulinwiz/issues
 
 Contributing Code
 -----------------
