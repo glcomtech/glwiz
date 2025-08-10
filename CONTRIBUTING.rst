@@ -4,7 +4,7 @@ Contributing Guidelines
 Reporting Issues
 ----------------
 
-- Before creating a new Issue, please check first if a similar Issue already exists or was recently closed https://github.com/gnulinwiz/gnulinwiz/issues
+- Before creating a new Issue, please check first if a similar Issue already exists or was recently closed https://github.com/gnulintech/gnulinwiz/issues
 
 Contributing Code
 -----------------
@@ -12,7 +12,7 @@ Contributing Code
 - By contributing to this project, you share your code under the GNU AFFERO GENERAL PUBLIC LICENSE Version 3, as specified in the LICENSE file.
 - Create a new branch for your feature (for example: git checkout -b feature_name)
 - Your pull request must merge your feature branch to project's development branch
-- Project code style: https://github.com/gnulinwiz/gnulinwiz/blob/main/CODESTYLE.rst
+- Project code style: https://github.com/gnulintech/gnulinwiz/blob/main/CODESTYLE.rst
 - Don't forget to add yourself to the AUTHORS file.
 
 Code Review
