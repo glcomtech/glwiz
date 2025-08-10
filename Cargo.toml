@@ -1,11 +1,11 @@
 [package]
-name = "gnulinwiz"
-version = "1.0.1"
+name = "glwiz"
+version = "1.0.2"
 edition = "2024"
 authors = ["Andrew Kushyk <akushyk799 at gmail.com>"]
-description = "gnulinwiz (GNU/Linux Config Wizard) The ultimate post-installation setup assistant for GNU/Linux, streamlining your configuration process with ease and precision."
+description = "GLWiz - The ultimate post-installation setup assistant for GNU/Linux popular disros, streamlining your configuration process with ease and precision."
 license = "AGPL-3.0-or-later"
-repository = "https://gitlab.com/git-user-cpp/gnulinwiz"
+repository = "https://github.com/glcomtech/glwiz"
 
 [dependencies]
 libc = "0.2"
@@ -13,5 +13,5 @@ colored = "3"
 clap = { version = "4.5", features = ["derive"] }
 
 [lib]
-name = "gnulinwiz"
+name = "glwiz"
 path = "src/lib.rs"

@@ -108,8 +108,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "gnulinwiz"
-version = "1.0.1"
+name = "glwiz"
+version = "1.0.2"
 dependencies = [
  "clap",
  "colored",

@@ -1,5 +1,5 @@
 /*
- * gnulinwiz AKA GNU/Linux Config Wizard: The ultimate post-installation setup assistant for Linux,
+ * GLWiz - The ultimate post-installation setup assistant for GNU/Linux popular disros,
  * streamlining your configuration process with ease and precision.
  * 
  * Copyright (C) 2025  Andrew Kushyk
