@@ -16,15 +16,15 @@ The ultimate post-installation setup assistant for GNU/Linux popular disros, str
 
 ## How to use
 
-To use the program download the latest version here: https://github.com/glcomtech/glwiz/tree/main/releazes
+To use the program download the latest version here: https://github.com/glcomtech/glwiz/releases
 
 Unpack the archive:
 ```
-tar -xzf glwiz_0_1_0.tar.gz
+tar -xzf glwiz_v2.0.0_x86_x64.tar.gz
 ```
 Then enter the "program" directory:
 ```
-cd glwiz_0_1_0/program
+cd glwiz_v2.0.0_x86_x64/program
 ```
 And finally run the program:
 ```
