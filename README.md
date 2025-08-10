@@ -1,34 +1,34 @@
-# gnulinwiz (GNU/Linux Config Wizard)
+# GLWiz
 
-The ultimate post-installation setup assistant for GNU/Linux, streamlining your configuration process with ease and precision.
+The ultimate post-installation setup assistant for GNU/Linux popular disros, streamlining your configuration process with ease and precision.
 
 ---
 
-![GitHub Release](https://img.shields.io/github/v/release/gnulintech/gnulinwiz?style=flat-square&logo=github)
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/gnulintech/gnulinwiz/rust.yml?style=flat-square&logo=github)
-![GitHub Repo stars](https://img.shields.io/github/stars/gnulintech/gnulinwiz?style=flat-square&logo=github)
+![GitHub Release](https://img.shields.io/github/v/release/glcomtech/glwiz?style=flat-square&logo=github)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/glcomtech/glwiz/rust.yml?style=flat-square&logo=github)
+![GitHub Repo stars](https://img.shields.io/github/stars/glcomtech/glwiz?style=flat-square&logo=github)
 
-![GitHub contributors](https://img.shields.io/github/contributors/gnulintech/gnulinwiz?style=flat-square&logo=github) ![GitHub last commit](https://img.shields.io/github/last-commit/gnulintech/gnulinwiz?style=flat-square&logo=github)
+![GitHub contributors](https://img.shields.io/github/contributors/glcomtech/glwiz?style=flat-square&logo=github) ![GitHub last commit](https://img.shields.io/github/last-commit/glcomtech/glwiz?style=flat-square&logo=github)
 
-![GitHub License](https://img.shields.io/github/license/gnulintech/gnulinwiz?style=flat-square&logo=github)
+![GitHub License](https://img.shields.io/github/license/glcomtech/glwiz?style=flat-square&logo=github)
 
 ---
 
 ## How to use
 
-To use the program download the latest version here: https://github.com/gnulintech/gnulinwiz/tree/main/releazes
+To use the program download the latest version here: https://github.com/glcomtech/glwiz/tree/main/releazes
 
 Unpack the archive:
 ```
-tar -xzf gnulinwiz_0_1_0.tar.gz
+tar -xzf glwiz_0_1_0.tar.gz
 ```
 Then enter the "program" directory:
 ```
-cd gnulinwiz_0_1_0/program
+cd glwiz_0_1_0/program
 ```
 And finally run the program:
 ```
-./gnulinwiz
+./glwiz
 ```
 
 ---
@@ -39,7 +39,7 @@ All set! Your GNU/Linux system is ready to use!
 
 If you want to build the program, download the repository and enter it:
 ```
-cd gnulinwiz
+cd glwiz
 ```
 Run cargo build command with mode release:
 ```
@@ -53,12 +53,12 @@ cargo build
 ---
 
 ## Documentation
-https://gnulintech.github.io/gnulinwiz/gnulinwiz/index.html
+https://glcomtech.github.io/glwiz/glwiz/index.html
 
 ---
 
 ## ⚠️ LICENSE ⚠️
-    gnulinwiz AKA GNU/Linux Config Wizard: The ultimate post-installation setup assistant for Linux,
+    GLWiz - The ultimate post-installation setup assistant for GNU/Linux popular disros,
     streamlining your configuration process with ease and precision.
     
     Copyright (C) 2025  Andrew Kushyk
