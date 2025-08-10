@@ -1,6 +1,6 @@
 [package]
 name = "glwiz"
-version = "1.0.2"
+version = "2.0.0"
 edition = "2024"
 authors = ["Andrew Kushyk <akushyk799 at gmail.com>"]
 description = "GLWiz - The ultimate post-installation setup assistant for GNU/Linux popular disros, streamlining your configuration process with ease and precision."

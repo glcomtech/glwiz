@@ -26,7 +26,7 @@ use std::process;
 #[derive(Parser, Debug)]
 #[command(
      author = "Andrew Kushyk",
-     version = "1.0.0",
+     version = "2.0.0",
      about = "A post-installation setup assistant for Linux, streamlining configuration with ease and precision.",
      long_about = None
  )]
