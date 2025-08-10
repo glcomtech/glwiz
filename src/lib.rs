@@ -18,7 +18,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/// The core module for the GNU/Linux Config Wizard, containing utilities for system configuration.
+/// The core module for the glwiz, containing utilities for system configuration.
 ///
 /// This module organizes functionality into submodules for tasks such as software installation,
 /// shell configuration, iptables setup, and ZRAM swap management. Each submodule provides
@@ -27,7 +27,7 @@
 ///
 /// # Example
 /// ```
-/// use gnulinwiz::functionality::zram::zram_swap_setup;
+/// use glwiz::functionality::zram::zram_swap_setup;
 /// let result = zram_swap_setup();
 /// assert_eq!(result, 0); // Successful ZRAM configuration
 /// ```
@@ -83,7 +83,7 @@ use functionality::{
 ///
 /// # Example
 /// ```
-/// let result = gnulinwiz::gnu_linux_default_setup(true);
+/// let result = glwiz::gnu_linux_default_setup(true);
 /// match result {
 ///     Ok(()) => println!("Setup completed successfully!"),
 ///     Err(e) => eprintln!("Setup failed: {}", e),

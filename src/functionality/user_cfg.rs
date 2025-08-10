@@ -18,10 +18,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/// Stores user configuration data for the GNU/Linux Config Wizard.
+/// Stores user configuration data for the glwiz.
 ///
 /// This struct holds user-specific information, such as the username and home directory, used
-/// in the "gnulinwiz" project to configure user environments during post-installation setup.
+/// in the "glwiz" project to configure user environments during post-installation setup.
 /// It provides methods to set and retrieve these values, ensuring valid data through checks
 /// for non-empty strings and existing directories. The struct is critical for tasks like
 /// setting up shell configurations, copying user files, or installing software tailored to
@@ -33,7 +33,7 @@
 ///
 /// # Example
 /// ```
-/// use gnulinwiz::functionality::user_cfg::UserCfg;
+/// use glwiz::functionality::user_cfg::UserCfg;
 /// let mut user_cfg = UserCfg::new();
 /// user_cfg.set_name("user").unwrap();
 /// user_cfg.set_home("/home/user").unwrap();
@@ -61,7 +61,7 @@ impl UserCfg {
     ///
     /// # Example
     /// ```
-    /// use gnulinwiz::functionality::user_cfg::UserCfg;
+    /// use glwiz::functionality::user_cfg::UserCfg;
     /// let user_cfg = UserCfg::new();
     /// assert_eq!(user_cfg.get_name(), "");
     /// assert_eq!(user_cfg.get_home(), "");
@@ -76,7 +76,7 @@ impl UserCfg {
     /// Sets the username for the `UserCfg` instance.
     ///
     /// This method updates the `name` field with the provided username, ensuring it is non-empty.
-    /// It is used in the "gnulinwiz" project to store the username for tasks like changing the
+    /// It is used in the "glwiz" project to store the username for tasks like changing the
     /// default shell or configuring user-specific files.
     ///
     /// # Arguments
@@ -91,7 +91,7 @@ impl UserCfg {
     ///
     /// # Example
     /// ```
-    /// use gnulinwiz::functionality::user_cfg::UserCfg;
+    /// use glwiz::functionality::user_cfg::UserCfg;
     /// let mut user_cfg = UserCfg::new();
     /// let result = user_cfg.set_name("user");
     /// assert!(result.is_ok());
@@ -109,7 +109,7 @@ impl UserCfg {
     /// Sets the home directory for the `UserCfg` instance.
     ///
     /// This method updates the `home_dir` field with the provided path, ensuring it is non-empty
-    /// and corresponds to an existing directory. It is used in the "gnulinwiz" project for tasks
+    /// and corresponds to an existing directory. It is used in the "glwiz" project for tasks
     /// like copying configuration files to the user’s home directory.
     ///
     /// # Arguments
@@ -126,7 +126,7 @@ impl UserCfg {
     ///
     /// # Example
     /// ```
-    /// use gnulinwiz::functionality::user_cfg::UserCfg;
+    /// use glwiz::functionality::user_cfg::UserCfg;
     /// let mut user_cfg = UserCfg::new();
     /// let result = user_cfg.set_home("/home/user");
     /// if result.is_ok() {
@@ -146,7 +146,7 @@ impl UserCfg {
 
     /// Retrieves the stored username.
     ///
-    /// This method returns a reference to the `name` field, used in the "gnulinwiz" project to
+    /// This method returns a reference to the `name` field, used in the "glwiz" project to
     /// access the username for configuration tasks like setting the default shell.
     ///
     /// # Returns
@@ -154,7 +154,7 @@ impl UserCfg {
     ///
     /// # Example
     /// ```
-    /// use gnulinwiz::functionality::user_cfg::UserCfg;
+    /// use glwiz::functionality::user_cfg::UserCfg;
     /// let mut user_cfg = UserCfg::new();
     /// user_cfg.set_name("user").unwrap();
     /// assert_eq!(user_cfg.get_name(), "user");
@@ -165,7 +165,7 @@ impl UserCfg {
 
     /// Retrieves the stored home directory.
     ///
-    /// This method returns a reference to the `home_dir` field, used in the "gnulinwiz" project
+    /// This method returns a reference to the `home_dir` field, used in the "glwiz" project
     /// to access the home directory for tasks like copying configuration files.
     ///
     /// # Returns
@@ -173,7 +173,7 @@ impl UserCfg {
     ///
     /// # Example
     /// ```
-    /// use gnulinwiz::functionality::user_cfg::UserCfg;
+    /// use glwiz::functionality::user_cfg::UserCfg;
     /// let mut user_cfg = UserCfg::new();
     /// user_cfg.set_home("/home/user").unwrap();
     /// assert_eq!(user_cfg.get_home(), "/home/user");

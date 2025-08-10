@@ -24,7 +24,7 @@ use std::env;
 /// Retrieves the value of a specified environment variable for system configuration.
 ///
 /// This function fetches the value of an environment variable (e.g., `USER`, `HOME`) and is used
-/// in the "gnulinwiz" project to gather user-specific data during post-installation setup. It ensures
+/// in the "glwiz" project to gather user-specific data during post-installation setup. It ensures
 /// robust error handling by returning a descriptive error message if the variable is unset or
 /// invalid. The function is critical for tasks like configuring user environments and detecting
 /// system settings, providing a safe interface to `std::env::var`.
@@ -43,7 +43,7 @@ use std::env;
 ///
 /// # Example
 /// ```
-/// use gnulinwiz::functionality::env::get_env_var;
+/// use glwiz::functionality::env::get_env_var;
 /// match get_env_var("USER") {
 ///     Ok(username) => println!("Current user: {}", username),
 ///     Err(e) => eprintln!("Error: {}", e),

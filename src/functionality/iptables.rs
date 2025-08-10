@@ -25,7 +25,7 @@ use std::fs;
 /// Sets up the iptables configuration file for network security.
 ///
 /// This function copies a predefined iptables rules file from `../configs/iptables.rules` to
-/// `/etc/iptables/iptables.rules`, ensuring a secure firewall configuration in the "gnulinwiz" project.
+/// `/etc/iptables/iptables.rules`, ensuring a secure firewall configuration in the "glwiz" project.
 /// It checks for the source file’s existence and prompts the user to overwrite the destination if it
 /// exists, making the operation idempotent. The function uses `sudo` to write to the system directory,
 /// ensuring proper permissions. It is part of the post-installation setup to enhance network security.
@@ -43,7 +43,7 @@ use std::fs;
 /// # Example
 /// ```should_panic
 /// // Requires ../configs/iptables.rules and sudo privileges.
-/// use gnulinwiz::functionality::iptables::iptables_file_setup;
+/// use glwiz::functionality::iptables::iptables_file_setup;
 /// let result = iptables_file_setup();
 /// assert_eq!(result, 0);
 /// ```
@@ -94,7 +94,7 @@ pub fn iptables_file_setup() -> i8 {
 ///
 /// This function uses `iptables-restore` to apply the rules stored in `/etc/iptables/iptables.rules`,
 /// activating the firewall configuration set up by `iptables_file_setup`. It executes the command
-/// with `sudo` to ensure proper permissions and is part of the "gnulinwiz" project’s post-installation
+/// with `sudo` to ensure proper permissions and is part of the "glwiz" project’s post-installation
 /// setup to secure the system’s network. The function logs success or failure with descriptive messages.
 ///
 /// # Returns
@@ -108,7 +108,7 @@ pub fn iptables_file_setup() -> i8 {
 ///
 /// # Example
 /// ```
-/// use gnulinwiz::functionality::iptables::iptables_rules_setup;
+/// use glwiz::functionality::iptables::iptables_rules_setup;
 /// let result = iptables_rules_setup();
 /// assert_eq!(result, 0); // Rules applied successfully
 /// ```

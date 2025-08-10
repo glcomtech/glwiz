@@ -27,7 +27,7 @@ use std::process::Command;
 /// appropriate package manager based on the detected distribution (Arch, Debian, or Fedora).
 /// It uses `sudo` to execute commands like `pacman`, `apt`, or `dnf` with distribution-specific
 /// arguments for non-interactive installation. The function is a core component of the
-/// "gnulinwiz" project’s post-installation setup, enabling automated software installation
+/// "glwiz" project’s post-installation setup, enabling automated software installation
 /// for user-specified or default package lists. It logs the command being run and reports
 /// success or failure with detailed error messages.
 ///
@@ -47,7 +47,7 @@ use std::process::Command;
 ///
 /// # Example
 /// ```
-/// use gnulinwiz::functionality::software::software_setup;
+/// use glwiz::functionality::software::software_setup;
 /// let packages = &["firefox", "vim"];
 /// let result = software_setup(packages, "debian");
 /// assert_eq!(result, 0); // Packages installed successfully

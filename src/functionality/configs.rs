@@ -25,7 +25,7 @@ use std::path::Path;
 /// Copies a configuration file to the user's home directory, ensuring idempotent operation.
 ///
 /// This function copies a specified configuration file (e.g., `.zshrc`, `.vimrc`) to the user’s
-/// home directory, creating a consistent user environment in the "gnulinwiz" project. It checks
+/// home directory, creating a consistent user environment in the "glwiz" project. It checks
 /// for existing files at the destination and prompts the user to overwrite them, preventing
 /// unintended modifications. The function is used for setting up user-specific configurations
 /// like Zsh and Vim settings during post-installation setup.
@@ -48,7 +48,7 @@ use std::path::Path;
 /// ```should_panic
 /// // This example requires a valid ../configs/.zshrc file and write permissions.
 /// // For actual testing, use integration tests with a mocked file system.
-/// use gnulinwiz::functionality::configs::user_config_setup;
+/// use glwiz::functionality::configs::user_config_setup;
 /// let result = user_config_setup("../configs/.zshrc", "/home/user", "zsh");
 /// assert_eq!(result, 0); // Success if files exist and no overwrite prompt
 /// ```
@@ -125,7 +125,7 @@ fn copy_item_as_root(src: &str, dest: &str, description: &str) -> i8 {
 /// This function copies essential configuration files and directories (e.g., `.oh-my-zsh`, `.zshrc`,
 /// `.vimrc`) from the user’s home directory to the root user’s environment (e.g., `/root`). It uses
 /// `sudo` to perform the copy operations, ensuring root-owned files are updated correctly. The function
-/// is part of the "gnulinwiz" project’s post-installation setup to provide a consistent root environment.
+/// is part of the "glwiz" project’s post-installation setup to provide a consistent root environment.
 ///
 /// # Arguments
 /// * `home_dir` - The user’s home directory containing the source configurations (e.g., `"/home/user"`).
@@ -141,7 +141,7 @@ fn copy_item_as_root(src: &str, dest: &str, description: &str) -> i8 {
 ///
 /// # Example
 /// ```
-/// use gnulinwiz::functionality::configs::setup_root_config;
+/// use glwiz::functionality::configs::setup_root_config;
 /// let result = setup_root_config("/home/user");
 /// assert_eq!(result, 0); // Root configurations copied successfully
 /// ```

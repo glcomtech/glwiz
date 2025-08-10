@@ -26,7 +26,7 @@
 ///
 /// # Example
 /// ```
-/// use gnulinwiz::functionality::commands::run_sudo_command;
+/// use glwiz::functionality::commands::run_sudo_command;
 /// let result = run_sudo_command("echo", &["Hello, world!"]);
 /// assert!(result.is_ok());
 /// ```
@@ -64,7 +64,7 @@ pub mod iptables;
 ///
 /// # Example
 /// ```
-/// use gnulinwiz::functionality::prog_fun::print_license_info;
+/// use glwiz::functionality::prog_fun::print_license_info;
 /// print_license_info(); // Displays the GNU GPL v3 license information
 /// ```
 pub mod prog_fun;
@@ -93,7 +93,7 @@ pub mod software;
 /// summarize task statuses.
 pub mod task;
 
-// Stores and manages user configuration data, such as username and home directory.
+/// Stores and manages user configuration data, such as username and home directory.
 ///
 /// This submodule provides the `UserCfg` struct to hold user-specific data, with methods to
 /// set and retrieve usernames and home directories. It is used for user-specific configurations
@@ -113,7 +113,7 @@ pub mod user_cfg;
 /// ```should_panic
 /// // Requires ../configs/zram-generator.conf and sudo privileges.
 /// // Use integration tests for actual validation.
-/// use gnulinwiz::functionality::zram::zram_swap_setup;
+/// use glwiz::functionality::zram::zram_swap_setup;
 /// let result = zram_swap_setup();
 /// assert_eq!(result, 0); // Success if config exists and no overwrite
 /// ```

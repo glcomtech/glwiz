@@ -25,7 +25,7 @@ use colored::Colorize;
 ///
 /// This function sets up ZRAM (compressed RAM-based swap) by copying a predefined configuration
 /// file from `../configs/zram-generator.conf` to `/etc/systemd/zram-generator.conf`. It is part
-/// of the "gnulinwiz" project’s post-installation setup to enhance system performance by providing
+/// of the "glwiz" project’s post-installation setup to enhance system performance by providing
 /// fast, compressed swap space. The function checks for the source file’s existence and prompts
 /// the user to overwrite the destination if it exists, ensuring idempotent operation. It uses
 /// `sudo` to write to the system directory, guaranteeing proper permissions.
@@ -43,7 +43,7 @@ use colored::Colorize;
 /// ```should_panic
 /// // Requires ../configs/zram-generator.conf and sudo privileges.
 /// // Use integration tests for actual validation.
-/// use gnulinwiz::functionality::zram::zram_swap_setup;
+/// use glwiz::functionality::zram::zram_swap_setup;
 /// let result = zram_swap_setup();
 /// assert_eq!(result, 0); // Success if config exists and no overwrite
 /// ```

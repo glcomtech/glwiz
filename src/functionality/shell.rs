@@ -25,7 +25,7 @@ use std::process::{Command, Stdio};
 /// Changes the default shell to Zsh for a specified user.
 ///
 /// This function sets Zsh as the default shell for a user by executing the `chsh` command with
-/// `sudo` privileges. It is part of the "gnulinwiz" project’s post-installation setup to provide
+/// `sudo` privileges. It is part of the "glwiz" project’s post-installation setup to provide
 /// an enhanced shell experience. The function logs success or failure and is used for both
 /// regular users and the root user.
 ///
@@ -43,7 +43,7 @@ use std::process::{Command, Stdio};
 ///
 /// # Example
 /// ```
-/// use gnulinwiz::functionality::shell::change_def_shell;
+/// use glwiz::functionality::shell::change_def_shell;
 /// let result = change_def_shell("user");
 /// assert_eq!(result, 0); // Zsh set successfully for user
 /// ```
@@ -68,7 +68,7 @@ pub fn change_def_shell(name: &str) -> i8 {
 ///
 /// This function downloads and installs Oh My Zsh by piping the official installation script from
 /// a remote URL through `curl` to `bash`. It checks if Oh My Zsh is already installed to avoid
-/// redundant operations, ensuring idempotency. The function is part of the "gnulinwiz" project’s
+/// redundant operations, ensuring idempotency. The function is part of the "glwiz" project’s
 /// post-installation setup to provide a customizable and feature-rich shell environment.
 ///
 /// # Returns
@@ -84,7 +84,7 @@ pub fn change_def_shell(name: &str) -> i8 {
 /// # Example
 /// ```should_panic
 /// // Requires network access and curl/bash.
-/// use gnulinwiz::functionality::shell::install_omz;
+/// use glwiz::functionality::shell::install_omz;
 /// let result = install_omz();
 /// assert_eq!(result, 0);
 /// ```
@@ -188,7 +188,7 @@ fn install_zsh_plugin(home_dir: &str, plugin_name: &str, repo_url: &str) -> i8 {
 ///
 /// This function installs the Zsh Autosuggestions plugin by cloning its Git repository into the
 /// Oh My Zsh custom plugins directory. It ensures idempotency by checking for existing installations
-/// and is part of the "gnulinwiz" project’s post-installation setup to improve Zsh usability with
+/// and is part of the "glwiz" project’s post-installation setup to improve Zsh usability with
 /// command suggestions based on history.
 ///
 /// # Arguments
@@ -204,7 +204,7 @@ fn install_zsh_plugin(home_dir: &str, plugin_name: &str, repo_url: &str) -> i8 {
 /// # Example
 /// ```should_panic
 /// // Requires git and network access.
-/// use gnulinwiz::functionality::shell::install_zsh_autosuggestions;
+/// use glwiz::functionality::shell::install_zsh_autosuggestions;
 /// let result = install_zsh_autosuggestions("/home/user");
 /// assert_eq!(result, 0);
 /// ```
@@ -224,7 +224,7 @@ pub fn install_zsh_autosuggestions(home_dir: &str) -> i8 {
 ///
 /// This function installs the Zsh Syntax Highlighting plugin by cloning its Git repository into the
 /// Oh My Zsh custom plugins directory. It ensures idempotency by checking for existing installations
-/// and is part of the "gnulinwiz" project’s post-installation setup to enhance Zsh with syntax
+/// and is part of the "glwiz" project’s post-installation setup to enhance Zsh with syntax
 /// highlighting for commands and arguments.
 ///
 /// # Arguments
@@ -240,7 +240,7 @@ pub fn install_zsh_autosuggestions(home_dir: &str) -> i8 {
 /// # Example
 /// ```should_panic
 /// // Requires git and network access.
-/// use gnulinwiz::functionality::shell::install_zsh_syntax_highlighting;
+/// use glwiz::functionality::shell::install_zsh_syntax_highlighting;
 /// let result = install_zsh_syntax_highlighting("/home/user");
 /// assert_eq!(result, 0); // Plugin installed or already present
 /// ```

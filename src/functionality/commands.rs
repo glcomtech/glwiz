@@ -27,7 +27,7 @@ use std::{
 /// Executes a system command with `sudo` privileges, requiring elevated permissions.
 ///
 /// This function runs a specified command with `sudo`, passing the provided arguments, and captures
-/// its output. It is used in the "gnulinwiz" project for tasks requiring root access, such as copying
+/// its output. It is used in the "glwiz" project for tasks requiring root access, such as copying
 /// configuration files to system directories or applying iptables rules. The function ensures robust
 /// error handling by reporting command failures with detailed stdout and stderr messages.
 ///
@@ -47,7 +47,7 @@ use std::{
 ///
 /// # Example
 /// ```
-/// use gnulinwiz::functionality::commands::run_sudo_command;
+/// use glwiz::functionality::commands::run_sudo_command;
 /// let result = run_sudo_command("cp", &["/src/file", "/dest/file"]);
 /// match result {
 ///     Ok(()) => println!("File copied successfully"),
@@ -79,7 +79,7 @@ pub fn run_sudo_command(command: &str, args: &[&str]) -> Result<(), String> {
 /// Executes a system command as the current user, without elevated privileges.
 ///
 /// This function runs a specified command with the provided arguments as the current user, capturing
-/// its output. It is used in the "gnulinwiz" project for tasks that do not require root access, such as
+/// its output. It is used in the "glwiz" project for tasks that do not require root access, such as
 /// cloning Git repositories for Zsh plugins. The function provides detailed error messages for failed
 /// commands, including stdout and stderr.
 ///
@@ -99,7 +99,7 @@ pub fn run_sudo_command(command: &str, args: &[&str]) -> Result<(), String> {
 ///
 /// # Example
 /// ```
-/// use gnulinwiz::functionality::commands::run_user_command;
+/// use glwiz::functionality::commands::run_user_command;
 /// let result = run_user_command("git", &["clone", "https://github.com/repo.git"]);
 /// match result {
 ///     Ok(()) => println!("Repository cloned successfully"),
@@ -126,7 +126,7 @@ pub fn run_user_command(command: &str, args: &[&str]) -> Result<(), String> {
 /// Executes a system command with `sudo` privileges, passing input via stdin.
 ///
 /// This function runs a specified command with `sudo`, providing input through stdin and suppressing
-/// stdout. It is used in the "gnulinwiz" project for tasks like writing configuration files to system
+/// stdout. It is used in the "glwiz" project for tasks like writing configuration files to system
 /// directories using `tee`. The function ensures robust error handling by reporting failures with
 /// detailed stdout and stderr messages.
 ///
@@ -148,7 +148,7 @@ pub fn run_user_command(command: &str, args: &[&str]) -> Result<(), String> {
 ///
 /// # Example
 /// ```
-/// use gnulinwiz::functionality::commands::run_sudo_command_with_stdin;
+/// use glwiz::functionality::commands::run_sudo_command_with_stdin;
 /// let content = "key=value\n".to_string();
 /// let result = run_sudo_command_with_stdin("tee", &["/etc/config"], content);
 /// match result {
