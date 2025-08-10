@@ -4,19 +4,19 @@ The ultimate post-installation setup assistant for GNU/Linux, streamlining your 
 
 ---
 
-![GitHub Release](https://img.shields.io/github/v/release/gnulinwiz/gnulinwiz?style=flat-square&logo=github)
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/gnulinwiz/gnulinwiz/rust.yml?style=flat-square&logo=github)
-![GitHub Repo stars](https://img.shields.io/github/stars/gnulinwiz/gnulinwiz?style=flat-square&logo=github)
+![GitHub Release](https://img.shields.io/github/v/release/gnulintech/gnulinwiz?style=flat-square&logo=github)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/gnulintech/gnulinwiz/rust.yml?style=flat-square&logo=github)
+![GitHub Repo stars](https://img.shields.io/github/stars/gnulintech/gnulinwiz?style=flat-square&logo=github)
 
-![GitHub contributors](https://img.shields.io/github/contributors/gnulinwiz/gnulinwiz?style=flat-square&logo=github) ![GitHub last commit](https://img.shields.io/github/last-commit/gnulinwiz/gnulinwiz?style=flat-square&logo=github)
+![GitHub contributors](https://img.shields.io/github/contributors/gnulintech/gnulinwiz?style=flat-square&logo=github) ![GitHub last commit](https://img.shields.io/github/last-commit/gnulintech/gnulinwiz?style=flat-square&logo=github)
 
-![GitHub License](https://img.shields.io/github/license/gnulinwiz/gnulinwiz?style=flat-square&logo=github)
+![GitHub License](https://img.shields.io/github/license/gnulintech/gnulinwiz?style=flat-square&logo=github)
 
 ---
 
 ## How to use
 
-To use the program download the latest version here: https://github.com/gnulinwiz/gnulinwiz/tree/main/releazes
+To use the program download the latest version here: https://github.com/gnulintech/gnulinwiz/tree/main/releazes
 
 Unpack the archive:
 ```
@@ -53,7 +53,7 @@ cargo build
 ---
 
 ## Documentation
-https://gnulinwiz.github.io/gnulinwiz/gnulinwiz/index.html
+https://gnulintech.github.io/gnulinwiz/gnulinwiz/index.html
 
 ---
 
