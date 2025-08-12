@@ -2,7 +2,7 @@
 name = "glwiz"
 version = "2.0.0"
 edition = "2024"
-authors = ["Andrew Kushyk <akushyk799 at gmail.com>"]
+authors = ["Andrew Kushyk <amnewman at duck.com>"]
 description = "GLWiz - The ultimate post-installation setup assistant for GNU/Linux popular disros, streamlining your configuration process with ease and precision."
 license = "AGPL-3.0-or-later"
 repository = "https://github.com/glcomtech/glwiz"
