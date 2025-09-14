@@ -1,6 +1,6 @@
 # GLWiz
 
-The ultimate post-installation setup assistant for GNU/Linux popular disros, streamlining your configuration process with ease and precision.
+The ultimate post-installation setup assistant for GNU/Linux popular distros, streamlining your configuration process with ease and precision.
 
 ---
 
@@ -58,7 +58,7 @@ https://glcomtech.github.io/glwiz/glwiz/index.html
 ---
 
 ## ⚠️ LICENSE ⚠️
-    GLWiz - The ultimate post-installation setup assistant for GNU/Linux popular disros,
+    GLWiz - The ultimate post-installation setup assistant for GNU/Linux popular distros,
     streamlining your configuration process with ease and precision.
     
     Copyright (C) 2025  Andrew Kushyk
